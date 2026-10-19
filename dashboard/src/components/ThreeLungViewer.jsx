@@ -532,22 +532,22 @@ export default function ThreeLungViewer({
             style={{
               display: 'flex',
               alignItems: 'baseline',
-              gap: 14,
-              marginBottom: 4
+              gap: 16,
+              marginBottom: 8
             }}
           >
             <span
               className="heading-serif"
               style={{
-                fontSize: 72,
-                lineHeight: 1,
+                fontSize: 98,
+                lineHeight: 0.95,
                 fontWeight: 600,
                 color: colorTheme.css,
-                letterSpacing: '-0.03em'
+                letterSpacing: '-0.04em'
               }}
             >
               {riskScore.toFixed(1)}
-              <span style={{ fontSize: 32, fontWeight: 400, color: 'var(--text-light)', marginLeft: 2 }}>
+              <span style={{ fontSize: 40, fontWeight: 400, color: 'var(--text-light)', marginLeft: 3 }}>
                 %
               </span>
             </span>
@@ -555,17 +555,17 @@ export default function ThreeLungViewer({
             <div>
               <div
                 style={{
-                  fontSize: 14,
+                  fontSize: 15,
                   fontWeight: 600,
                   color: 'var(--text-main)',
-                  lineHeight: 1.2
+                  lineHeight: 1.3
                 }}
               >
                 Forecasted Flare-Up Probability
               </div>
               <div
                 style={{
-                  fontSize: 12,
+                  fontSize: 13,
                   color: 'var(--text-muted)'
                 }}
               >
@@ -576,11 +576,11 @@ export default function ThreeLungViewer({
 
           <p
             style={{
-              fontSize: 13.5,
+              fontSize: 14.5,
               color: 'var(--text-muted)',
-              lineHeight: 1.5,
-              marginBottom: 18,
-              maxWidth: 480
+              lineHeight: 1.65,
+              marginBottom: 22,
+              maxWidth: 520
             }}
           >
             {riskScore >= 75
@@ -597,19 +597,19 @@ export default function ThreeLungViewer({
             style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(3, 1fr)',
-              gap: 12,
-              paddingTop: 14,
+              gap: 16,
+              paddingTop: 16,
               borderTop: '1px solid var(--border-subtle)'
             }}
           >
             {/* Breathing Frequency */}
             <div>
-              <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
-                <Activity size={12} color="var(--teal-mid)" /> RESPIRATORY RATE
+              <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 3, display: 'flex', alignItems: 'center', gap: 5, fontWeight: 500 }}>
+                <Activity size={13} color="var(--teal-mid)" /> Respiratory rate
               </div>
-              <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-main)' }}>
+              <div style={{ fontSize: 17, fontWeight: 600, color: 'var(--text-main)' }}>
                 {respiratoryRate || 16}{' '}
-                <span style={{ fontSize: 11.5, fontWeight: 400, color: 'var(--text-muted)' }}>
+                <span style={{ fontSize: 12, fontWeight: 400, color: 'var(--text-muted)' }}>
                   rpm ({breathDuration}s cycle)
                 </span>
               </div>
@@ -617,25 +617,25 @@ export default function ThreeLungViewer({
 
             {/* Resting SpO2 */}
             <div>
-              <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
-                <Activity size={12} color="var(--teal-mid)" /> BLOOD OXYGEN
+              <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 3, display: 'flex', alignItems: 'center', gap: 5, fontWeight: 500 }}>
+                <Activity size={13} color="var(--teal-mid)" /> Blood oxygen (SpO2)
               </div>
-              <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-main)' }}>
+              <div style={{ fontSize: 17, fontWeight: 600, color: 'var(--text-main)' }}>
                 {spo2 || 95}%{' '}
-                <span style={{ fontSize: 11.5, fontWeight: 400, color: 'var(--text-muted)' }}>
-                  SpO2 resting
+                <span style={{ fontSize: 12, fontWeight: 400, color: 'var(--text-muted)' }}>
+                  resting
                 </span>
               </div>
             </div>
 
             {/* Delhi CAMS AQI */}
             <div>
-              <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
-                <Wind size={12} color="var(--teal-mid)" /> CAMS CPCB NAQI
+              <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 3, display: 'flex', alignItems: 'center', gap: 5, fontWeight: 500 }}>
+                <Wind size={13} color="var(--teal-mid)" /> Air quality (NAQI)
               </div>
-              <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-main)' }}>
+              <div style={{ fontSize: 17, fontWeight: 600, color: 'var(--text-main)' }}>
                 {aqi || 120}{' '}
-                <span style={{ fontSize: 11.5, fontWeight: 400, color: 'var(--text-muted)' }}>
+                <span style={{ fontSize: 12, fontWeight: 400, color: 'var(--text-muted)' }}>
                   AQI ({aqi > 200 ? 'Severe' : aqi > 100 ? 'Moderate' : 'Good'})
                 </span>
               </div>

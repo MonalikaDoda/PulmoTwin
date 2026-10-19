@@ -64,8 +64,8 @@ export default function WhatMovedTheEstimate({
     },
     {
       id: 'temp_swing',
-      name: 'Diurnal Temperature Swing',
-      val: currentTelemetry?.temp_swing_diurnal ? `${currentTelemetry.temp_swing_diurnal}°C` : '12.4°C',
+      name: 'Weather & pollen',
+      val: currentTelemetry?.temp_swing_diurnal ? `${currentTelemetry.temp_swing_diurnal}°C swing` : '12.4°C swing',
       defaultImpact: currentTelemetry?.temp_swing_diurnal > 11 ? +1.8 : -0.5,
       isHazard: currentTelemetry?.temp_swing_diurnal > 11
     },
@@ -93,7 +93,7 @@ export default function WhatMovedTheEstimate({
     // If fallback, reconcile defaultImpacts so Baseline + sum(impacts) === displayedRisk
     const delta = displayedRisk - baselineRisk
     const defaultSum = defaultFactorDefinitions.reduce((acc, f) => acc + f.defaultImpact, 0)
-    const factorScale = defaultSum !== 0 ? delta / defaultSum : 0
+    const factorScale = Math.abs(defaultSum) > 1e-4 && Math.abs(delta) > 0.05 ? delta / defaultSum : 0
     return defaultFactorDefinitions.map((f) => {
       const imp = parseFloat((f.defaultImpact * factorScale).toFixed(1))
       return {
@@ -172,13 +172,13 @@ export default function WhatMovedTheEstimate({
           marginBottom: 8
         }}
       >
-        <span>CLINICAL FACTOR</span>
-        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 20px' }}>
-          <span>← Reduces Risk (Protective)</span>
+        <span style={{ fontWeight: 500, letterSpacing: '0.01em' }}>Clinical factor</span>
+        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 20px', fontSize: 11.5 }}>
+          <span>← Reduces risk (protective)</span>
           <span style={{ fontWeight: 600, color: 'var(--text-muted)' }}>0 pp</span>
-          <span>Elevates Risk (Hazard) →</span>
+          <span>Elevates risk (hazard) →</span>
         </div>
-        <span style={{ textAlign: 'right' }}>SHIFT</span>
+        <span style={{ textAlign: 'right', fontWeight: 500, letterSpacing: '0.01em' }}>Shift</span>
       </div>
 
       {/* Factor Diverging Horizontal Bars */}

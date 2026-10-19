@@ -134,7 +134,7 @@ export default function ModelValidationDrawer({ isOpen, onClose, analyticsData }
             </table>
           </div>
 
-          {/* Section 2: Warning Horizons & Alert Burden */}
+          {/* Section 2: Warning Horizons & Clinical Workload */}
           <div>
             <h3 className="heading-serif" style={{ fontSize: 16, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
               <Clock size={15} color="var(--teal-deep)" />
@@ -142,29 +142,63 @@ export default function ModelValidationDrawer({ isOpen, onClose, analyticsData }
             </h3>
             
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 8 }}>
-              <div style={{ background: 'var(--bg-subtle)', padding: '12px 14px', borderRadius: 6, border: '1px solid var(--border-subtle)' }}>
-                <span style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>
-                  Sensitivity at 48h
+              <div style={{ background: 'var(--bg-subtle)', padding: '12px 14px', borderRadius: 12, border: '1px solid var(--border-subtle)' }}>
+                <span style={{ fontSize: 11.5, color: 'var(--text-muted)', fontWeight: 500 }}>
+                  Early 48h Detection
                 </span>
                 <div className="font-serif" style={{ fontSize: 28, color: 'var(--teal-deep)', fontWeight: 600 }}>
-                  100%
+                  93.4%
                 </div>
-                <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
-                  All 81 test cohort flare episodes detected 24 to 48 hours ahead.
+                <span style={{ fontSize: 11.5, color: 'var(--text-muted)' }}>
+                  Test cohort recall at optimal threshold across 48-hour window.
                 </span>
               </div>
 
-              <div style={{ background: 'var(--bg-subtle)', padding: '12px 14px', borderRadius: 6, border: '1px solid var(--border-subtle)' }}>
-                <span style={{ fontSize: 11, color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 600 }}>
-                  Alert Burden
+              <div style={{ background: 'var(--bg-subtle)', padding: '12px 14px', borderRadius: 12, border: '1px solid var(--border-subtle)' }}>
+                <span style={{ fontSize: 11.5, color: 'var(--text-muted)', fontWeight: 500 }}>
+                  Clinical Alert Burden
                 </span>
                 <div className="font-serif" style={{ fontSize: 28, color: 'var(--teal-deep)', fontWeight: 600 }}>
-                  0.20
+                  0.77
                 </div>
-                <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
-                  Alerts per patient per month (~2.35 alerts/patient/year).
+                <span style={{ fontSize: 11.5, color: 'var(--text-muted)' }}>
+                  Average alerts per patient per month (~9.2 alerts/year).
                 </span>
               </div>
+            </div>
+          </div>
+
+          {/* Section 2b: Delhi Seasonal Pollen Aerobiological Formula */}
+          <div style={{
+            background: 'var(--bg-subtle)',
+            border: '1px solid var(--border-subtle)',
+            borderRadius: 14,
+            padding: '14px 16px'
+          }}>
+            <h4 className="heading-serif" style={{ fontSize: 14.5, marginBottom: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <Wind size={14} color="var(--teal-deep)" />
+              Delhi Seasonal Pollen Formula (Simulated Model)
+            </h4>
+            <p style={{ fontSize: 11.5, color: 'var(--text-muted)', marginBottom: 8, lineHeight: 1.5 }}>
+              Calibrated to Delhi aerobiological literature (AIIMS & VPCI bi-modal pollination patterns):
+            </p>
+            <div style={{
+              background: '#ffffff',
+              padding: '10px 12px',
+              borderRadius: 8,
+              border: '1px solid var(--border-subtle)',
+              fontFamily: 'monospace',
+              fontSize: 11,
+              color: 'var(--teal-deep)',
+              lineHeight: 1.5,
+              overflowX: 'auto'
+            }}>
+              P(t) = clip( 12.0 + 85.0 · exp(-0.5 · ((DOY - 75)/16)²) + 70.0 · exp(-0.5 · ((DOY - 290)/18)²) + ε, 2.0, 100.0 ) · W_rain
+            </div>
+            <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 8, lineHeight: 1.5 }}>
+              • <strong>Spring Peak (DOY 75 / Mid-March):</strong> Tree pollen (<em>Holoptelea, Prosopis, Morus</em>) reaching 85–95 index.<br/>
+              • <strong>Autumn Peak (DOY 290 / Mid-October):</strong> Weed & grass pollen (<em>Parthenium, Poaceae</em>) reaching 65–80 index.<br/>
+              • <strong>Rain Washout:</strong> W_rain = max(0.2, 1.0 - Precip / 15.0) when precipitation &gt; 2 mm.
             </div>
           </div>
 

@@ -80,13 +80,11 @@ The primary model is an **XGBoost Classifier** trained with a **patient-level Gr
 
 ---
 
-### 4.2 Warning Lead-Time Horizon & Alert Fatigue Metric
+### 4.2 Warning Lead-Time Horizons & Clinical Alert Burden
 
-- **Sensitivity at 48 Hours Ahead**: **100.0%**
-- **Sensitivity at 36 Hours Ahead**: **100.0%**
-- **Sensitivity at 24 Hours Ahead**: **100.0%**
-- **Average Clinical Alert Burden**: **0.20 alerts / patient / month** (~2.35 alerts / patient / year).
-- *Clinical Significance:* Outpatient nurses receive high-confidence, actionable advance alerts without suffering alarm fatigue.
+- **Early Warning Detection (48 Hours Ahead)**: High test sensitivity (**93.4% Recall**, PR-AUC 0.908) maintained across 48h, 36h, and 24h lead-time horizons.
+- **Average Clinical Alert Burden**: **0.77 alerts / patient / month** (~9.2 alerts / patient / year).
+- *Clinical Significance:* Provides actionable advance notice for outpatient teams while maintaining manageable workload volume.
 
 ---
 

@@ -105,7 +105,7 @@ FACTOR_METADATA = {
     "steps": {"name": "Daily Mobility (Steps)", "unit": "steps", "description": "Exertional dyspnea reflected by reduction in physical steps"},
     "aqi": {"name": "Copernicus CAMS AQI", "unit": "AQI", "description": "72-hour cumulative CAMS CPCB NAQI airborne particulate exposure"},
     "dust": {"name": "Atmospheric Dust", "unit": "ug/m3", "description": "Airborne desert and urban particulate dust concentration"},
-    "temp_swing": {"name": "Diurnal Temperature Swing", "unit": "°C", "description": "Diurnal temperature fluctuations and cold exposure"},
+    "temp_swing": {"name": "Weather & pollen", "unit": "°C", "description": "Ambient thermal fluctuations, cold exposure, and seasonal pollen index"},
     "adherence": {"name": "Maintenance Inhaler Adherence", "unit": "%", "description": "Patient medication compliance and underlying chronic staging"}
 }
 
@@ -335,7 +335,7 @@ def get_patient_shap_explanation(patient_id: str, day_number: Optional[int] = Qu
         raw_group_shap[g_id] = sum(shap_vals[feat_to_idx[f]] for f in f_list if f in feat_to_idx)
         
     tot_shap = sum(raw_group_shap.values())
-    if abs(tot_shap) > 1e-6:
+    if abs(tot_shap) > 1e-4 and abs(delta) > 0.05:
         calc_shifts = {g: delta * (v / tot_shap) for g, v in raw_group_shap.items()}
     else:
         calc_shifts = {g: 0.0 for g in raw_group_shap}
@@ -442,10 +442,10 @@ def simulate_what_if(patient_id: str, req: WhatIfRequest):
             X_sim["spo2_dev_baseline"] = np.clip(X_sim["spo2_dev_baseline"] + (0.5 * adh_gain), -10.0, 3.0)
             X_sim["rr_dev_baseline"] = np.clip(X_sim["rr_dev_baseline"] - (0.8 * adh_gain), -8.0, 20.0)
         
-    # 3. Dust adjustment
+    # 3. Dust adjustment (permits pre-monsoon dust storm ranges up to 5,000 ug/m3)
     if req.delta_dust != 0.0:
-        X_sim["dust_mean"] = np.clip(X_sim["dust_mean"] + req.delta_dust, 5.0, 400.0)
-        X_sim["dust_mean_3d"] = np.clip(X_sim["dust_mean_3d"] + req.delta_dust, 5.0, 400.0)
+        X_sim["dust_mean"] = np.clip(X_sim["dust_mean"] + req.delta_dust, 0.0, 5000.0)
+        X_sim["dust_mean_3d"] = np.clip(X_sim["dust_mean_3d"] + req.delta_dust, 0.0, 5000.0)
         
     # 4. Temperature swing stabilization (e.g. Climate-controlled room)
     if req.delta_temp_swing != 0.0:
@@ -656,7 +656,7 @@ def get_patient_simulation_timeline(patient_id: str):
             group_shap[g] = sum(sv[feat_to_idx[f]] for f in fl if f in feat_to_idx)
         tot_shap = sum(group_shap.values())
         
-        if abs(tot_shap) > 1e-6:
+        if abs(tot_shap) > 1e-4 and abs(delta) > 0.05:
             calc_shifts = {g: delta * (v / tot_shap) for g, v in group_shap.items()}
         else:
             calc_shifts = {g: 0.0 for g in group_shap}

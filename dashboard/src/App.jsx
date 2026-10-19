@@ -11,6 +11,7 @@ import PatientList from './components/PatientList'
 import DoctorActionsPanel from './components/DoctorActionsPanel'
 import AlertHistory from './components/AlertHistory'
 import ModelValidationDrawer from './components/ModelValidationDrawer'
+import { Sliders, ChevronDown } from 'lucide-react'
 
 const API_BASE = 'http://localhost:8000/api'
 
@@ -31,6 +32,9 @@ export default function App() {
   const [currentDay, setCurrentDay] = useState(365)
   const [isPlaying, setIsPlaying] = useState(false)
   const [playbackSpeed, setPlaybackSpeed] = useState(1)
+
+  // Collapsible "More tools" section
+  const [showMoreTools, setShowMoreTools] = useState(false)
 
   const [activeHorizon, setActiveHorizon] = useState(30)
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
@@ -254,28 +258,29 @@ export default function App() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--bg-app)' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       {/* Editorial Header */}
       <Header
         onOpenDrawer={() => setIsDrawerOpen(true)}
         isBackendOnline={isBackendOnline}
       />
 
-      {/* Main Workspace Layout */}
+      {/* Main Workspace Layout with Generous Calm Spacing */}
       <main
+        className="dashboard-main-grid"
         style={{
           flex: 1,
-          padding: '28px 32px',
-          maxWidth: 1600,
+          padding: '36px 40px',
+          maxWidth: 1620,
           margin: '0 auto',
           width: '100%',
           display: 'grid',
-          gridTemplateColumns: '300px 1fr',
-          gap: 28
+          gridTemplateColumns: '310px 1fr',
+          gap: 36
         }}
       >
-        {/* Left Column: Patient Cohort Triage */}
-        <aside style={{ height: 'calc(100vh - 130px)', position: 'sticky', top: 100 }}>
+        {/* Left Column: Patient Cohort Triage (Quieter Card) */}
+        <aside className="dashboard-aside" style={{ height: 'calc(100vh - 140px)', position: 'sticky', top: 110 }}>
           <PatientList
             patients={patients}
             selectedPatientId={selectedPatientId}
@@ -287,96 +292,155 @@ export default function App() {
         <section style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
           {/* Patient Banner */}
           {patientProfile && (
-            <PatientHeader
-              patient={patientProfile}
-              riskInfo={{
-                risk_score: activeRiskScore,
-                risk_level: activeRiskLevel
-              }}
-            />
+            <div style={{ marginBottom: 28 }}>
+              <PatientHeader
+                patient={patientProfile}
+                riskInfo={{
+                  risk_score: activeRiskScore,
+                  risk_level: activeRiskLevel
+                }}
+              />
+            </div>
           )}
 
-          {/* Interactive Live Simulation Controller */}
-          <SimulationControls
-            currentDay={currentDay}
-            maxDays={365}
-            currentDate={activeDate}
-            isPlaying={isPlaying}
-            playbackSpeed={playbackSpeed}
-            onPlayToggle={() => setIsPlaying(!isPlaying)}
-            onSpeedChange={(spd) => setPlaybackSpeed(spd)}
-            onDayChange={(d) => setCurrentDay(d)}
-            onJumpToNextAlert={handleJumpToNextAlert}
-            onResetToLatest={() => {
-              setCurrentDay(365)
-              setIsPlaying(false)
-            }}
-            alertsInYear={alertsHistory}
-          />
+          {/* Interactive Live Simulation Controller (Kept exactly as it is) */}
+          <div style={{ marginBottom: 36 }}>
+            <SimulationControls
+              currentDay={currentDay}
+              maxDays={365}
+              currentDate={activeDate}
+              isPlaying={isPlaying}
+              playbackSpeed={playbackSpeed}
+              onPlayToggle={() => setIsPlaying(!isPlaying)}
+              onSpeedChange={(spd) => setPlaybackSpeed(spd)}
+              onDayChange={(d) => setCurrentDay(d)}
+              onJumpToNextAlert={handleJumpToNextAlert}
+              onResetToLatest={() => {
+                setCurrentDay(365)
+                setIsPlaying(false)
+              }}
+              alertsInYear={alertsHistory}
+            />
+          </div>
 
-          {/* HERO: 3D Respiratory Digital Twin with Dynamic Risk Tinting & Respiratory Rate Scaling */}
-          <ThreeLungViewer
-            riskScore={activeRiskScore}
-            riskLevel={activeRiskLevel}
-            respiratoryRate={activeRespRate}
-            spo2={activeSpo2}
-            aqi={activeAqi}
-            patientName={patientProfile?.name || 'Patient'}
-            condition={patientProfile?.condition || 'COPD'}
-            simulationDay={currentDay}
-            simulationDate={activeDate}
-          />
+          {/* HERO: 3D Respiratory Digital Twin with Dynamic Risk Tinting & Enlarge Risk Stat */}
+          <div style={{ marginBottom: 38 }}>
+            <ThreeLungViewer
+              riskScore={activeRiskScore}
+              riskLevel={activeRiskLevel}
+              respiratoryRate={activeRespRate}
+              spo2={activeSpo2}
+              aqi={activeAqi}
+              patientName={patientProfile?.name || 'Patient'}
+              condition={patientProfile?.condition || 'COPD'}
+              simulationDay={currentDay}
+              simulationDate={activeDate}
+            />
+          </div>
 
           {/* "What Moved the Estimate": Exact SHAP Proportional Sharing */}
-          <WhatMovedTheEstimate
-            shapData={activeShapData}
-            patientProfile={patientProfile}
-            currentTelemetry={activeTelemetryForBars}
-            riskScore={activeRiskScore}
-          />
+          <div style={{ marginBottom: 38 }}>
+            <WhatMovedTheEstimate
+              shapData={activeShapData}
+              patientProfile={patientProfile}
+              currentTelemetry={activeTelemetryForBars}
+              riskScore={activeRiskScore}
+            />
+          </div>
 
           {/* Continuous Multi-Sensor Timeline Windowed to Simulation Day */}
-          <VitalsTimeline
-            history={historyData}
-            patientBaselines={patientProfile || {}}
-            activeHorizon={activeHorizon}
-            onHorizonChange={handleHorizonChange}
-            currentDay={currentDay}
-          />
-
-          {/* Bottom Grid: What-If, Delhi Map, Doctor Actions, Alert History */}
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-              gap: 20,
-              marginTop: 4
-            }}
-          >
-            <WhatIfSimulator
-              patientId={selectedPatientId}
-              baselineRisk={activeRiskScore}
-              onRunSimulation={handleRunSimulation}
-              simulationResult={simulationResult}
+          <div style={{ marginBottom: 38 }}>
+            <VitalsTimeline
+              history={historyData}
+              patientBaselines={patientProfile || {}}
+              activeHorizon={activeHorizon}
+              onHorizonChange={handleHorizonChange}
+              currentDay={currentDay}
             />
+          </div>
 
-            <DelhiMap
-              stations={delhiStations}
-              selectedPatient={patientProfile}
-              dayNumber={currentDay}
-              currentDate={activeDate}
-            />
-
-            <DoctorActionsPanel
-              patientId={selectedPatientId}
-              onLogAction={handleLogAction}
-              loggedActions={patientProfile?.actions_log || []}
-            />
-
+          {/* Alert History Audit Log */}
+          <div style={{ marginBottom: 38 }}>
             <AlertHistory
               alerts={alertsHistory}
               currentDay={currentDay}
             />
+          </div>
+
+          {/* Collapsible "More Tools" Section: What-If, Delhi Map & Doctor Orders */}
+          <div style={{ marginTop: 6, marginBottom: 52 }}>
+            <button
+              onClick={() => setShowMoreTools(!showMoreTools)}
+              className="editorial-btn"
+              style={{
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '16px 24px',
+                background: 'rgba(255, 255, 255, 0.72)',
+                backdropFilter: 'blur(16px)',
+                WebkitBackdropFilter: 'blur(16px)',
+                border: '1px solid rgba(255, 255, 255, 0.85)',
+                borderRadius: 20,
+                cursor: 'pointer',
+                color: 'var(--text-main)',
+                fontSize: 14,
+                fontWeight: 500,
+                boxShadow: '0 4px 16px rgba(24, 39, 75, 0.03)'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <Sliders size={17} color="var(--teal-deep)" />
+                <span style={{ fontWeight: 600, color: 'var(--text-serif)', fontFamily: 'var(--font-serif)', fontSize: 16 }}>
+                  More clinical tools & scenario simulators
+                </span>
+                <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                  (What-If counterfactual, Delhi NCR atmospheric map & physician orders)
+                </span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--text-muted)', fontSize: 12.5 }}>
+                <span>{showMoreTools ? 'Hide tools' : 'Show tools (3)'}</span>
+                <ChevronDown
+                  size={16}
+                  style={{
+                    transform: showMoreTools ? 'rotate(180deg)' : 'rotate(0deg)',
+                    transition: 'transform 0.25s ease'
+                  }}
+                />
+              </div>
+            </button>
+
+            {showMoreTools && (
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+                  gap: 24,
+                  marginTop: 20
+                }}
+              >
+                <WhatIfSimulator
+                  patientId={selectedPatientId}
+                  baselineRisk={activeRiskScore}
+                  onRunSimulation={handleRunSimulation}
+                  simulationResult={simulationResult}
+                />
+
+                <DelhiMap
+                  stations={delhiStations}
+                  selectedPatient={patientProfile}
+                  dayNumber={currentDay}
+                  currentDate={activeDate}
+                />
+
+                <DoctorActionsPanel
+                  patientId={selectedPatientId}
+                  onLogAction={handleLogAction}
+                  loggedActions={patientProfile?.actions_log || []}
+                />
+              </div>
+            )}
           </div>
         </section>
       </main>
