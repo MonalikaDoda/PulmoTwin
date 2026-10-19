@@ -1,0 +1,12 @@
+{
+  "total_test_flare_events": 372,
+  "sensitivity_at_48h_ahead": 1.0,
+  "sensitivity_at_36h_ahead": 1.0,
+  "sensitivity_at_24h_ahead": 1.0,
+  "sensitivity_at_12h_ahead": 0.9543,
+  "total_alerts_triggered_in_test_cohort": 919,
+  "test_patients_count": 100,
+  "monitoring_duration_months": 12,
+  "average_alerts_per_patient_per_month": 0.77,
+  "average_alerts_per_patient_per_year": 9.19
+}

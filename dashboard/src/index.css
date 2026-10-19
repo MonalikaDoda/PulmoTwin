@@ -1,0 +1,163 @@
+/* PulmoTwin: Calm Editorial-Clinical Theme */
+:root {
+  --font-serif: 'Newsreader', Georgia, serif;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  /* Surfaces: Warm Off-White / Alabaster Paper */
+  --bg-app: #fbf9f5;
+  --bg-surface: #ffffff;
+  --bg-subtle: #f5f3ee;
+  --bg-hover: #efede7;
+
+  /* Hairline Dividers instead of heavy borders */
+  --border-subtle: #e8e5df;
+  --border-medium: #d8d4cc;
+
+  /* Typography */
+  --text-main: #18201e;
+  --text-serif: #141c1a;
+  --text-muted: #5e6865;
+  --text-light: #8a9491;
+
+  /* One Deep Teal Accent */
+  --teal-deep: #0f4c47;
+  --teal-mid: #16655f;
+  --teal-light: #e6f0ef;
+  --teal-accent: #115e59;
+
+  /* Risk Tiers: Coral / Red strictly for elevated risk */
+  --risk-low: #0f766e;
+  --risk-low-bg: #e6f4f2;
+  --risk-amber: #b45309;
+  --risk-amber-bg: #fef3c7;
+  --risk-coral: #e11d48;
+  --risk-coral-bg: #fff1f2;
+  --risk-crit: #be123c;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-app);
+  color: var(--text-main);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Serif Display Typography */
+.font-serif {
+  font-family: var(--font-serif);
+}
+
+h1, h2, h3, .heading-serif {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  color: var(--text-serif);
+  letter-spacing: -0.015em;
+}
+
+/* Calm Editorial Card (Fewer boxes, thin subtle boundaries) */
+.editorial-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(24, 32, 30, 0.02);
+  transition: border-color 0.15s ease;
+}
+
+.editorial-divider {
+  border: none;
+  height: 1px;
+  background-color: var(--border-subtle);
+  margin: 16px 0;
+}
+
+/* Dynamic Breathing Lung Animations */
+@keyframes lungBreathe {
+  0% {
+    transform: scale(0.96);
+  }
+  38% {
+    transform: scale(1.05);
+  }
+  65% {
+    transform: scale(1.03);
+  }
+  100% {
+    transform: scale(0.96);
+  }
+}
+
+@keyframes particleDrift {
+  0% {
+    transform: translateY(0px) translateX(0px);
+    opacity: 0.2;
+  }
+  50% {
+    transform: translateY(-8px) translateX(4px);
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateY(0px) translateX(0px);
+    opacity: 0.2;
+  }
+}
+
+.breathe-animation {
+  transform-origin: center center;
+  animation-name: lungBreathe;
+  animation-iteration-count: infinite;
+  animation-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+.particle-drift {
+  animation: particleDrift 4s ease-in-out infinite;
+}
+
+/* Scrollbar Minimal */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-medium);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-light);
+}
+
+/* Minimalist Range Sliders */
+input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 4px;
+  background: var(--border-medium);
+  border-radius: 2px;
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--teal-deep);
+  cursor: pointer;
+  border: 2px solid #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition: transform 0.1s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.25);
+}

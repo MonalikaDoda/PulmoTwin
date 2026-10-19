@@ -1,0 +1,46 @@
+[
+  {
+    "model_name": "M1: Vitals Only",
+    "feature_count": 17,
+    "roc_auc": 0.9982,
+    "pr_auc": 0.9042,
+    "recall": 0.9409,
+    "precision": 0.7511,
+    "f1_score": 0.8353,
+    "brier_score": 0.0102,
+    "optimal_threshold": 0.85
+  },
+  {
+    "model_name": "M2: Vitals + EHR",
+    "feature_count": 27,
+    "roc_auc": 0.9981,
+    "pr_auc": 0.902,
+    "recall": 0.9382,
+    "precision": 0.7603,
+    "f1_score": 0.84,
+    "brier_score": 0.0102,
+    "optimal_threshold": 0.85
+  },
+  {
+    "model_name": "M3: Vitals + EHR + CAMS AQI",
+    "feature_count": 35,
+    "roc_auc": 0.9982,
+    "pr_auc": 0.9068,
+    "recall": 0.9382,
+    "precision": 0.7562,
+    "f1_score": 0.8374,
+    "brier_score": 0.0102,
+    "optimal_threshold": 0.85
+  },
+  {
+    "model_name": "M4: Full Multi-Modal (+ Weather/Dust/Pollen)",
+    "feature_count": 46,
+    "roc_auc": 0.9982,
+    "pr_auc": 0.9078,
+    "recall": 0.9341,
+    "precision": 0.7563,
+    "f1_score": 0.8358,
+    "brier_score": 0.0102,
+    "optimal_threshold": 0.85
+  }
+]

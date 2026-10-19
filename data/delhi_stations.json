@@ -1,0 +1,37 @@
+{
+  "Anand Vihar": {
+    "zone": "East Delhi",
+    "latitude": 28.6469,
+    "longitude": 77.316,
+    "type": "Commercial / Major Transport Hub",
+    "elevation": 215
+  },
+  "RK Puram": {
+    "zone": "South Delhi",
+    "latitude": 28.563,
+    "longitude": 77.186,
+    "type": "Urban Residential & Institutional",
+    "elevation": 228
+  },
+  "Punjabi Bagh": {
+    "zone": "West Delhi",
+    "latitude": 28.672,
+    "longitude": 77.126,
+    "type": "Mixed Commercial & High-Density Residential",
+    "elevation": 218
+  },
+  "Mandir Marg": {
+    "zone": "Central Delhi",
+    "latitude": 28.6289,
+    "longitude": 77.2065,
+    "type": "Central Institutional / Green Belt Adjacency",
+    "elevation": 224
+  },
+  "Bawana": {
+    "zone": "North Delhi",
+    "latitude": 28.795,
+    "longitude": 77.05,
+    "type": "Industrial Cluster & Outer Perimeter",
+    "elevation": 213
+  }
+}
