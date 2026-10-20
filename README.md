@@ -24,10 +24,11 @@
 | 7 | **AI / ML Model Details & Ablation** | [7. AI/ML Model Details & Validation](#7-aiml-model-details--validation) |
 | 8 | **Working Prototype Video Demo** | [8. Video Demonstration](#8-video-demonstration) |
 | 9 | **Open-Source License** | [9. Open-Source License (MIT)](#9-open-source-license) |
-| 10 | **System Architecture Diagram** | [10. System Architecture Deliverable (PDF)](#10-system-architecture-deliverable) |
+| 10 | **System Architecture Deliverable** | [10. System Architecture Deliverable (PDF)](#10-system-architecture-deliverable) |
 | 11 | **Presentation Pitch Deck** | [11. Final Presentation Pitch Deck (PDF)](#11-final-presentation-pitch-deck) |
 | 12 | **Public Access & Run Instructions** | [12. Reproducibility & Quick-Start Guide](#12-reproducibility--quick-start-guide) |
 | 13 | **Scientific Limitations** | [13. Limitations & Disclaimers](#13-limitations--disclaimers) |
+| 14 | **Assets & Credits** | [14. Assets & Credits](#14-assets--credits) |
 
 ---
 
@@ -35,9 +36,16 @@
 
 - **Developer**: Monalika Doda (Solo Developer)
 - **Institution**: SRM University Delhi-NCR
+- **Team Name**: `<MY TEAM NAME>`
 - **Repository**: [https://github.com/MonalikaDoda/PulmoTwin](https://github.com/MonalikaDoda/PulmoTwin)
+
+---
+
+## 2. Institution & Affiliation
+
+- **University**: SRM University Delhi-NCR
 - **Challenge**: Happiest Health Digital Twin Challenge 2026
-- **Clinical Guideline Reference**: Built in reference to the Global Initiative for Chronic Obstructive Lung Disease ([GOLD 2024](https://goldcopd.org/2024-gold-report/)) and the Global Initiative for Asthma ([GINA 2023](https://ginasthma.org/reports/)).
+- **Clinical Staging Reference**: Uses GOLD/GINA stage categories; proportions are our assumptions (referenced to [GOLD 2024](https://goldcopd.org/2024-gold-report/) and [GINA 2023](https://ginasthma.org/reports/)).
 
 ---
 
@@ -47,7 +55,7 @@
 *Continuous Early Warning Forecasting of Acute COPD & Asthma Flare-Ups through Wearable Biomarkers and Atmospheric Intelligence.*
 
 PulmoTwin is a proof-of-concept healthcare Digital Twin designed to forecast impending acute exacerbations (flare-ups) in COPD and asthma patients **48 hours in advance**. It fuses:
-1. **Static Patient Phenotypes**: Synthetic cohort (N=500) covering age, sex, GOLD/GINA staging, smoking pack-years, maintenance inhaler adherence, and comorbidities.
+1. **Static Patient Phenotypes**: Synthetic cohort (N=500) covering age, sex, GOLD/GINA staging (uses GOLD/GINA stage categories; proportions are our assumptions), smoking pack-years, maintenance inhaler adherence, and comorbidities.
 2. **Continuous Dynamic Wearables**: 365 daily synthetic records per patient (182,500 patient-days) tracking blood oxygen ($SpO_2$), resting heart rate, respiratory rate, sleep duration, and daily step counts with personal baselines and pre-flare drift.
 3. **Real Modelled Atmospheric Data**: High-resolution atmospheric air quality from Open-Meteo Copernicus Atmosphere Monitoring Service (**CAMS**) converted to Indian Central Pollution Control Board (**CPCB**) National Air Quality Index (**NAQI**), daily **ECMWF ERA5** weather reanalysis (temperature, diurnal swing, dust, precipitation), and an illustrative seasonal pollen curve.
 
@@ -97,7 +105,7 @@ sequenceDiagram
         Nurse->>Doctor: "Queue order review (Action plan step-up / air purifier)"
         Doctor->>Patient: "Prescribe preventative action 48h before crisis"
     else Patient Stable (Risk < Threshold)
-        Engine->>Engine: "Continue passive surveillance (0.77 alerts/pt/month)"
+        Engine->>Engine: "Continue passive surveillance (0.77 alert days/pt/month)"
     end
 ```
 
@@ -112,7 +120,7 @@ The complete system architecture diagram is available in vector format: [`docs/P
 ```mermaid
 flowchart TD
     subgraph Layer1["Layer 1: Data & Environmental Ingestion"]
-        EHR["Synthetic Patient Cohort<br/>500 Patients • GOLD 1-4 & GINA 1-5<br/>Age, Sex, Staging, Adherence"]
+        EHR["Synthetic Patient Cohort<br/>500 Patients • GOLD 1-4 & GINA 1-5 Categories<br/>Age, Sex, Staging, Adherence"]
         WEAR["365-Day Synthetic Wearables<br/>182,500 Patient-Days<br/>SpO2, HR, RR, Sleep, Steps"]
         CAMS["Open-Meteo CAMS Reanalysis<br/>Hourly PM2.5, PM10, Dust<br/>Converted to CPCB NAQI Breakpoints"]
         ERA5["Open-Meteo ERA5 Reanalysis<br/>Daily Temp, Diurnal Swing, Rain<br/>Illustrative Seasonal Pollen Curve"]
@@ -172,7 +180,7 @@ flowchart TD
 | **Air Quality & Dust** | CPCB NAQI, PM2.5, PM10, Dust ($\mu\text{g}/\text{m}^3$) | Open-Meteo / Copernicus Atmosphere Monitoring Service (**CAMS**) atmospheric reanalysis mapped to official Indian CPCB NAQI breakpoints. | **Real Modelled / Reanalysis Data** *(Atmospheric model, not hardware station feeds)* |
 | **Weather** | Mean Temp, Diurnal Swing ($\Delta T$), Humidity, Rain, Wind | Open-Meteo / ECMWF **ERA5-Land** Reanalysis (365 days across 5 Delhi monitoring zones). | **Real Modelled / Reanalysis Data** |
 | **Seasonal Pollen** | Seasonal Index (0–100) | Illustrative seasonal curve with peaks placed near seasons in Delhi pollen calendars; not fitted to measured data. | **Illustrative Seasonal Model** *(Clearly labeled; not sensor trap counts)* |
-| **Static Patient EHR** | Age, Sex, GOLD/GINA Stage, Smoking Pack-Years, Inhaler Adherence | Synthetic clinical generator following **GOLD 2024** and **GINA 2023** distributions. | **Synthetic Clinical Cohort** *(500 patients, zero real patient data)* |
+| **Static Patient EHR** | Age, Sex, GOLD/GINA Stage, Smoking Pack-Years, Inhaler Adherence | Synthetic clinical generator (uses GOLD/GINA stage categories; proportions are our assumptions). | **Synthetic Clinical Cohort** *(500 patients, zero real patient data)* |
 | **Dynamic Wearables** | SpO2, Resting HR, Resp Rate, Sleep, Daily Steps | 365-day longitudinal time-series (182,500 patient-days) with individual baselines, noise, and pre-flare drift. | **Synthetic Wearable Telemetry** |
 
 > **Data Attribution Notice:** Weather and air quality data by [Open-Meteo.com](https://open-meteo.com/) under [Creative Commons Attribution 4.0 International (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/). Copernicus Atmosphere Monitoring Service information is used.
@@ -196,7 +204,7 @@ Where:
 
 Evaluated on an independent, held-out test cohort of **100 patients (36,500 patient-days)** with strict patient-level separation (zero data leakage):
 
-| Model Stage | Modalities Included | Feature Count | ROC-AUC | PR-AUC | Test Recall (48h) | Test Precision | F1-Score |
+| Model Stage | Modalities Included | Feature Count | ROC-AUC | PR-AUC | Test Recall (Day) | Test Precision | F1-Score |
 | :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
 | **M1: Vitals Only** | Wearables (Baselines, Deviations, 3d Trends) | 17 | 0.9982 | 0.9042 | 94.09% | 75.11% | 0.8353 |
 | **M2: Vitals + EHR** | + Age, Staging, Smoking Pack-Years, Comorbidities | 27 | 0.9981 | 0.9020 | 93.82% | 76.03% | 0.8400 |
@@ -209,16 +217,27 @@ Evaluated on an independent, held-out test cohort of **100 patients (36,500 pati
 
 ---
 
-### 7.4 Warning Lead-Time Horizons & Clinical Workload (Exact Real Values)
+### 7.4 Event-Level Advance Detection vs. Day-Level Recall
 
 From [`model/lead_time_analysis.json`](model/lead_time_analysis.json) across **372 test flare events** in the held-out cohort:
-- **48 Hours Ahead Warning**: **100.0% sensitivity** on synthetic test flare labels.
-- **36 Hours Ahead Warning**: **100.0% sensitivity**.
-- **24 Hours Ahead Warning**: **100.0% sensitivity**.
-- **12 Hours Ahead Warning**: **95.4% sensitivity** (0.9543).
-- **Clinical Alert Workload**:
-  - **Average Alerts per Patient per Month**: **0.77 alerts** (~9.19 alerts / patient / year).
-  - **Episode Grouping**: Consecutive alert days are clustered into single multi-day clinical episodes (e.g., *"8–9 Jan, 2-day episode • Peak 98.4% Risk"*), grouping redundant daily alarms into a single event.
+
+| Lead-Time Evaluation Window | Exact Evaluation Rule | Metric Value | Scope |
+| :--- | :--- | :---: | :--- |
+| **48 Hours Ahead Warning** | Alert triggered on Day $d-2$ OR Day $d-1$ | **100.0%** (372/372) | Event-Level Detection |
+| **36 Hours Ahead Warning** | Alert triggered on Day $d-2$ OR Day $d-1$ | **100.0%** (372/372) | Event-Level Detection |
+| **24 Hours Ahead Warning** | Alert triggered on Day $d-1$ OR Day $d-2$ | **100.0%** (372/372) | Event-Level Detection |
+| **12 Hours Ahead Warning** | Alert triggered on Day $d-1$ specifically | **95.4%** (355/372) | Event-Level Detection |
+| **Day-Level Test Recall** | Every individual day labeled with impending flare | **93.41%** (695/744) | Daily Observation Level |
+
+#### How Event-Level Detection Differs from Day-Level Recall:
+1. **Event-Level Sensitivity (100.0% at 48h)**: Evaluated per *flare event* ($N=372$). A flare event is considered detected in advance if the model fired an alert on **at least one** of the 2 warning days leading up to the acute flare ($d-2$ or $d-1$). Across all 372 flares in the test set, the model never missed both days simultaneously (whenever day $d-2$ was missed, day $d-1$ was triggered), meaning **zero flare events went completely undetected**.
+2. **Day-Level Recall (93.41%)**: Evaluated across **every individual daily observation** labeled with `flare_up_next_48h == 1`. Because each flare has a 2-day warning window, there are $372 \times 2 = 744$ positive days in the test set. The model correctly flagged 695 days and missed 49 days ($695 / 744 = 93.41\%$), representing a day-level false-negative rate of 6.59%.
+
+#### Clarification on Clinical Alert Workload (0.77 Alerts/Patient/Month):
+- This metric **counts individual alert days**, *not* grouped episodes.
+- In the test cohort of 100 patients monitored over 12 months (36,500 patient-days), there were **919 total individual alert days** (`full_pred_binary.sum() == 919`).
+- $\frac{919 \text{ alert days}}{100 \text{ patients} \times 12 \text{ months}} = 0.7658 \approx \mathbf{0.77}$ **alert days per patient per month** (~9.19 alert days per patient per year).
+- Because a flare prodrome typically triggers alerts across 2–3 consecutive days, grouping consecutive alert days into single multi-day episodes yields approximately **0.25 to 0.30 multi-day episodes per patient per month** (~3.1 episodes/patient/year).
 
 ---
 
@@ -226,7 +245,7 @@ From [`model/lead_time_analysis.json`](model/lead_time_analysis.json) across **3
 
 From [`model/comprehensive_metrics.json`](model/comprehensive_metrics.json), simulating uncharged devices or non-wear:
 
-| Sensor Dropout Rate | ROC-AUC | Test Recall (48h) | Precision | F1-Score | Status |
+| Sensor Dropout Rate | ROC-AUC | Test Recall (Day) | Precision | F1-Score | Status |
 | :---: | :---: | :---: | :---: | :---: | :--- |
 | **0% (Clean Baseline)** | **0.9982** | **93.41%** | **75.63%** | **0.8358** | Full Multi-Sensor Telemetry |
 | **10% Random Dropout** | 0.9963 | 78.76% | 75.32% | 0.7700 | Resilient (<8% F1 loss) |
@@ -301,7 +320,9 @@ cd PulmoTwin
 pip install -r requirements.txt
 ```
 
-### Step 3: Run Model Pipeline & Verify Data (Pre-computed Cache Included)
+### Step 3: Run Model Pipeline & Verify Data (Optional)
+> **Note:** This step is **optional**. Pre-computed model artifacts (`pulmotwin_xgboost.pkl`), metrics JSONs, and cached datasets are already included in the repository. Re-running `generate_cohort.py` or `train_model.py` generates new stochastic noise and will produce slightly different numerical results.
+
 ```bash
 # 1. Fetch Delhi CAMS & ERA5 weather data
 python data/fetch_delhi_aqi.py
@@ -335,13 +356,29 @@ npm run dev
 
 ## 13. Limitations & Disclaimers
 
-1. **Synthetic Patient Data**: All patient demographics, clinical stages, and wearable time-series are synthetic. No real patient health information (PHI) was used.
-2. **Rule-Based Labels**: Flare-up event labels were generated according to our own physiological drift simulation rules (SpO2 drops, heart rate elevation, step reduction). High machine learning test metrics reflect the model's ability to recover these generator rules on synthetic data, rather than clinical efficacy.
-3. **No Real Patient Clinical Evidence**: There is currently no prospective or retrospective clinical trial evidence demonstrating that this system is safe, accurate, or effective in real-world clinical care.
-4. **Modelled Environmental Data**: Air quality and weather inputs are from Open-Meteo reanalysis models (Copernicus CAMS and ECMWF ERA5), not physical hardware monitoring stations.
-5. **Illustrative Pollen Curve**: The seasonal pollen curve is an illustrative mathematical curve placed near Delhi calendar seasons; it is not fitted to measured aerobiological pollen trap counts.
-6. **Decision-Support Prototype**: PulmoTwin is a research prototype intended for clinical decision-support and workflow exploration. It is not an autonomous diagnostic or treatment device.
-7. **AI Assistance Disclosure**: Built with AI coding assistance (Antigravity).
+1. **Synthetic Patient Data**: All patient demographics, clinical stages, and wearable time-series are synthetic. Uses GOLD/GINA stage categories; proportions are our assumptions. No real patient health information (PHI) was used.
+2. **Synthetic Flare Frequency**: The synthetic cohort averages **~3.64 flare-up events per patient per year** (1,821 total acute flare events across 500 patients over 365 days; 372 flares across 100 test patients). In real-world outpatient populations, annual flare rates are typically lower (e.g. 0.5–2.0 flares/year for moderate disease), meaning flare frequency is overrepresented in this dataset to ensure sufficient training examples.
+3. **Uncapped Dust Hazard Modeling**: In `calculate_daily_flare_hazard` in `data/generate_cohort.py`, atmospheric dust excess (`max(0.0, dust - 50.0)`) was **not capped** prior to computing the hazard multiplier. During extreme pre-monsoon dust storm peaks in Delhi (>3,000 $\mu\text{g}/\text{m}^3$), this resulted in large transient multiplier spikes, although the composite daily hazard was bounded by an overall ceiling of 0.12 (12%/day).
+4. **Rule-Based Labels**: Flare-up event labels were generated according to our own physiological drift simulation rules (SpO2 drops, heart rate elevation, step reduction). High machine learning test metrics reflect the model's ability to recover these generator rules on synthetic data, rather than clinical efficacy.
+5. **No Real Patient Clinical Evidence**: There is currently no prospective or retrospective clinical trial evidence demonstrating that this system is safe, accurate, or effective in real-world clinical care.
+6. **Modelled Environmental Data**: Air quality and weather inputs are from Open-Meteo reanalysis models (Copernicus CAMS and ECMWF ERA5), not physical hardware monitoring stations.
+7. **Illustrative Pollen Curve**: The seasonal pollen curve is an illustrative mathematical curve placed near Delhi calendar seasons; it is not fitted to measured aerobiological pollen trap counts.
+8. **Decision-Support Prototype**: PulmoTwin is a research prototype intended for clinical decision-support and workflow exploration. It is not an autonomous diagnostic or treatment device.
+9. **AI Assistance Disclosure**: Built with AI coding assistance (Antigravity).
+
+---
+
+## 14. Assets & Credits
+
+- **3D Lung Model (`dashboard/public/lungs.glb`)**:
+  - **Title**: "Lungs"
+  - **Creator**: [prasanth.k](https://sketchfab.com/prasanth.k) on Sketchfab
+  - **Source URL**: [https://sketchfab.com/3d-models/lungs-b1ca931e08924b10b0051e2b5e206037](https://sketchfab.com/3d-models/lungs-b1ca931e08924b10b0051e2b5e206037) (Shortlink: [https://skfb.ly/oqOP7](https://skfb.ly/oqOP7))
+  - **License**: [Creative Commons Attribution (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/)
+- **Atmospheric & Weather Intelligence**:
+  - **Provider**: [Open-Meteo.com](https://open-meteo.com/) API under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+  - **Models**: Copernicus Atmosphere Monitoring Service (CAMS) European air quality reanalysis and ECMWF ERA5-Land weather reanalysis.
+- **Icons**: [Lucide React](https://lucide.dev/) under the MIT License.
 
 ---
 

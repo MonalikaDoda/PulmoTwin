@@ -25,11 +25,11 @@
 - **Core Principle:** In silico patient model continuously tracking individual physiological baselines.
 - **Three Data Streams:**
   1. *Individualized Wearable Telemetry:* SpO2, resting HR, respiratory rate, sleep hours, daily steps (synthetic 365-day time-series).
-  2. *Patient Phenotypes:* GOLD/GINA staging, smoking pack-years, baseline inhaler adherence (synthetic EHR cohort).
+  2. *Patient Phenotypes:* Uses GOLD/GINA stage categories; proportions are our assumptions (synthetic EHR cohort).
   3. *Hyper-Local Environmental Intelligence:* Real modelled CAMS air quality (converted to Indian CPCB NAQI) and ERA5 weather from Open-Meteo (CC BY 4.0).
 
 ### Slide 4: Data Engineering & Grounded Provenance
-- **Synthetic Cohort (N=500 patients):** Clinical COPD/asthma generator adhering to GOLD 2024 and GINA 2023 rules.
+- **Synthetic Cohort (N=500 patients):** Uses GOLD/GINA stage categories; proportions are our assumptions.
 - **Synthetic Telemetry (182,500 patient-days):** 365 daily records with simulated pre-flare drift and noise. Zero real patient health information (PHI).
 - **Real Modelled Atmospheric Data:** Hourly Open-Meteo CAMS data and daily ERA5 weather reanalysis.
 - **Illustrative Pollen Curve:** Mathematical seasonal curve placed near seasons in Delhi pollen calendars; not fitted to measured aerobiological data.
@@ -43,14 +43,12 @@
   - M4 (Full Multi-Modal, 46 features): ROC-AUC 0.9982 | PR-AUC 0.9078 | Recall 93.41% | Precision 75.63% | F1 0.8358
 - **Honest Ablation Finding:** On this synthetic dataset, continuous vitals (M1) already yield PR-AUC 0.9042. Adding environmental features (M4) provides virtually negligible gain (+0.0036 PR-AUC, +0.0005 F1), showing that vital sign drift accounts for nearly all predictive signal in the generator.
 
-### Slide 6: Warning Lead-Time & Sensor Dropout Robustness
+### Slide 6: Event-Level Advance Detection vs. Day-Level Recall
 - **Lead-Time Analysis (from model/lead_time_analysis.json):**
-  - 48h Ahead Warning: 100.0% sensitivity on synthetic test labels (372 test flare events).
-  - 36h Ahead Warning: 100.0% sensitivity.
-  - 24h Ahead Warning: 100.0% sensitivity.
-  - 12h Ahead Warning: 95.4% sensitivity.
-  - Clinical Workload: 0.77 alerts per patient per month (~9.19 alerts/patient/year).
-  - Grouped Episodes: Consecutive alert days clustered into single clinical episodes.
+  - **48h/36h/24h Event Rule:** An event is counted as detected if an alert fired on either Day $d-2$ or Day $d-1$. Every test flare was detected (372/372 = 100.0%).
+  - **12h Event Rule:** Checked strictly on Day $d-1$ specifically (355/372 = 95.4%).
+  - **Day-Level Test Recall (93.41%):** Evaluated across all 744 individual impending flare days in the test set (695 true positives, 49 false negatives).
+  - **Clinical Workload (0.77 alert days/patient/month):** Counts **individual alert days** (919 total alert days / 1200 patient-months in test set), *not* grouped episodes. Grouped episodes average ~0.25–0.30 per patient per month.
 - **Wearable Sensor Random Dropout Test:**
   - 0% Missing: ROC-AUC 0.9982 | Recall 93.41% | Precision 75.63% | F1 0.8358
   - 10% Missing: ROC-AUC 0.9963 | Recall 78.76% | Precision 75.32% | F1 0.7700
@@ -73,18 +71,23 @@
 - **Error Boundary:** Fault-tolerant architecture preventing blank screen crashes.
 
 ### Slide 9: Honest Scientific & Clinical Limitations
-1. **Synthetic Cohort:** All patient records are synthetic; flare labels were assigned by our own drift simulation rules. High metrics reflect rule recovery on synthetic data rather than clinical efficacy.
-2. **No Real Patient Evidence:** No prospective or retrospective evidence demonstrating safety or efficacy on real patients.
-3. **Modelled Weather & AQI:** Data is from Open-Meteo CAMS and ERA5 reanalysis models, not physical hardware monitoring stations.
-4. **Illustrative Pollen Curve:** Mathematical seasonal model; not measured pollen trap counts.
-5. **Decision Support Only:** Designed for risk review; not an autonomous diagnostic or treatment tool.
+1. **Synthetic Cohort:** All patient records are synthetic; uses GOLD/GINA stage categories (proportions are our assumptions). Flare labels were assigned by our own drift simulation rules. High metrics reflect rule recovery on synthetic data rather than clinical efficacy.
+2. **Synthetic Flare Frequency:** The cohort averages **~3.64 flare-up events per patient per year** (1,821 events across 500 patients over 365 days; 372 flares across 100 test patients). In real-world outpatient populations, annual flare rates are typically lower.
+3. **Uncapped Dust Hazard:** In `calculate_daily_flare_hazard`, dust excess was not capped prior to multiplier calculation. While composite daily hazard was capped at 0.12 (12%/day), extreme dust peaks produced large multiplier spikes.
+4. **No Real Patient Evidence:** No prospective or retrospective evidence demonstrating safety or efficacy on real patients.
+5. **Modelled Weather & AQI:** Data is from Open-Meteo CAMS and ERA5 reanalysis models, not physical hardware monitoring stations.
+6. **Illustrative Pollen Curve:** Mathematical seasonal model; not measured pollen trap counts.
+7. **Decision Support Only:** Designed for risk review; not an autonomous diagnostic or treatment tool.
 
-### Slide 10: Deliverables & Public Access
+### Slide 10: Deliverables, Assets & Public Access
 - **Author:** Monalika Doda, SRM University Delhi-NCR, `<MY TEAM NAME>`, solo.
 - **Repository:** [https://github.com/MonalikaDoda/PulmoTwin](https://github.com/MonalikaDoda/PulmoTwin)
 - **PDF Deliverables:**
   - `docs/PulmoTwin_Architecture_Diagram.pdf`
   - `docs/PulmoTwin_Presentation_Deck.pdf`
+- **Assets & Credits:**
+  - 3D Lung Model: "Lungs" by prasanth.k on Sketchfab ([https://skfb.ly/oqOP7](https://skfb.ly/oqOP7)) under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+  - Atmospheric & Weather Data: [Open-Meteo.com](https://open-meteo.com/) (Copernicus CAMS & ECMWF ERA5) under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
 - **License:** MIT License (Copyright (c) 2026 Monalika Doda).
 - **Assistance Disclosure:** Built with AI coding assistance (Antigravity).
-- **Quick-Start:** Run backend on port 8000 (`uvicorn api.main:app`), frontend on port 3000 (`npm run dev`).
+- **Quick-Start:** Run backend on port 8000 (`uvicorn api.main:app`), frontend on port 3000 (`npm run dev`). Step 3 is optional.

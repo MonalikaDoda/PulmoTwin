@@ -53,9 +53,9 @@ def create_architecture_diagram():
 
         # Layer 1 Boxes
         l1_boxes = [
-            (0.06, 0.70, 0.26, 0.13, "Synthetic Patient Phenotypes\n• 500 synthetic COPD/asthma patients\n• Age (42-84), Sex, GOLD/GINA staging\n• Smoking pack-years & adherence\n• Zero real patient data (PHI)"),
+            (0.06, 0.70, 0.26, 0.13, "Synthetic Patient Phenotypes\n• 500 synthetic COPD/asthma patients\n• Uses GOLD/GINA stage categories\n• Proportions are our assumptions\n• Zero real patient data (no PHI)"),
             (0.37, 0.70, 0.26, 0.13, "365-Day Synthetic Wearable Telemetry\n• 182,500 patient-days simulated\n• SpO2, HR, RR, Sleep, Steps\n• Individual baselines + AR(1) noise\n• 2-3 day pre-flare biomarker drift"),
-            (0.68, 0.70, 0.26, 0.13, "Real Modelled/Reanalysis Weather & Air\n• Open-Meteo CAMS Air Quality\n• Converted to Indian CPCB NAQI\n• Open-Meteo ERA5: Temp, Dust, Wind\n• Illustrative seasonal pollen curve")
+            (0.68, 0.70, 0.26, 0.13, "Real Modelled Weather & Air (Open-Meteo)\n• CAMS PM2.5, PM10, Dust -> CPCB NAQI\n• ERA5 Reanalysis: Temp, Swing, Wind\n• CC BY 4.0 Data Attribution\n• Illustrative seasonal pollen curve")
         ]
         for x, y, w, h, text in l1_boxes:
             b = patches.FancyBboxPatch((x, y), w, h, boxstyle="round,pad=0.01,rounding_size=0.01", edgecolor='#86efac', facecolor='#ffffff', linewidth=1)
@@ -77,7 +77,7 @@ def create_architecture_diagram():
         m4_pr = METRICS["pr_auc"]
         m4_rec = METRICS["recall"] * 100
         l3_boxes = [
-            (0.06, 0.22, 0.26, 0.14, f"XGBoost Binary Classifier\n• 48h Advance Flare Forecast\n• ROC-AUC: {METRICS['roc_auc']:.4f} | PR-AUC: {m4_pr:.4f}\n• Recall: {m4_rec:.1f}% | Prec: {METRICS['precision']*100:.1f}%\n• 4-Stage Ablation Benchmarks"),
+            (0.06, 0.22, 0.26, 0.14, f"XGBoost Binary Classifier\n• 48h Advance Flare Forecast\n• ROC-AUC: {METRICS['roc_auc']:.4f} | PR-AUC: {m4_pr:.4f}\n• Day Recall: {m4_rec:.1f}% | Prec: {METRICS['precision']*100:.1f}%\n• 4-Stage Ablation Benchmarks"),
             (0.37, 0.22, 0.26, 0.14, "SHAP Factor Attribution\n• TreeExplainer local attribution\n• Sigmoid-shared percentage points\n• Baseline (3.6%) + Bars = Risk%\n• 9 Clinical actionable factors"),
             (0.68, 0.22, 0.26, 0.14, "What-If Sensitivity Engine\n• Recalculates model output\n• Air filtration (AQI delta)\n• Inhaler compliance booster\n• Model sensitivity on synthetic data")
         ]
@@ -90,7 +90,7 @@ def create_architecture_diagram():
         l4_boxes = [
             (0.06, 0.035, 0.26, 0.10, "FastAPI REST Backend\n• Asynchronous API (Port 8000)\n• 365-day Timeline Replay\n• Patient list sorted by 48h risk\n• OpenAPI / Swagger docs"),
             (0.37, 0.035, 0.26, 0.10, "React Clinical Dashboard\n• 3D breathing lung twin (Three.js)\n• Light/glass telemetry card\n• 5 Vital tiles with 7d sparklines\n• Error boundary protected"),
-            (0.68, 0.035, 0.26, 0.10, "Workload & Episode Grouping\n• Consecutive alert days grouped\n• Delhi map with patient pin\n• 1-Click triage action orders\n• 0.77 alerts/patient/month")
+            (0.68, 0.035, 0.26, 0.10, "Workload & Episode Grouping\n• Consecutive alert days grouped\n• Delhi map with patient pin\n• 1-Click triage action orders\n• 0.77 alert days/patient/month")
         ]
         for x, y, w, h, text in l4_boxes:
             b = patches.FancyBboxPatch((x, y), w, h, boxstyle="round,pad=0.01,rounding_size=0.01", edgecolor='#f472b6', facecolor='#ffffff', linewidth=1)
@@ -137,14 +137,14 @@ def create_presentation_deck():
              "• Multi-Modal Fusion: Fuses personal baseline vitals (SpO2, HR, RR, sleep, steps) with real modelled\n"
              "  air quality (Open-Meteo CAMS) and weather (Open-Meteo ERA5).\n"
              "• 48-Hour Early Warning: Identifies pre-flare physiological drift before acute hospitalization is required.\n"
-             "• Operational Feasibility: Averages 0.77 alerts per patient per month (~9.19 alerts/patient/year),\n"
-             "  grouping consecutive days into single multi-day episodes to prevent alert overload.\n"
+             "• Operational Feasibility: 0.77 alert days per patient per month (~9.19 alert days/patient/year),\n"
+             "  grouping consecutive days into multi-day episodes to prevent alert overload.\n"
              "• Transparent Attribution: SHAP factor decomposition shows what shifted the estimate from the baseline.\n"
-             "• Counterfactual Sensitivity: Interactive What-If sliders show model response under hypothetical interventions."),
+             "• Counterfactual Sensitivity: Interactive What-If sliders show model response under hypothetical inputs."),
 
             ("Slide 4: Data Sources & Provenance", "Real Modelled Weather/AQI + Synthetic Clinical Cohort",
-             "• Synthetic Cohort (N=500 patients): Demographics, GOLD/GINA staging, smoking history, baseline adherence.\n"
-             "• Synthetic Telemetry (182,500 patient-days): 365 daily time-series with simulated pre-flare drift.\n"
+             "• Synthetic Cohort (N=500 patients): Uses GOLD/GINA stage categories; proportions are our assumptions.\n"
+             "• Synthetic Telemetry (182,500 patient-days): 365 daily records with simulated pre-flare drift and noise.\n"
              "• Real Modelled Air Quality: Open-Meteo CAMS reanalysis mapped to Indian CPCB NAQI breakpoints (CC BY 4.0).\n"
              "• Real Modelled Weather: Open-Meteo ECMWF ERA5-Land reanalysis (temperature, diurnal swing, dust, rain).\n"
              "• Illustrative Pollen Index: Mathematical curve placed near seasons in Delhi pollen calendars; not measured data.\n"
@@ -160,60 +160,60 @@ def create_presentation_deck():
              f"Adding environmental features (M4) provides virtually negligible gain (+0.0036 PR-AUC, +0.0005 F1),\n"
              f"showing that vital sign drift accounts for almost all predictive signal in the generator."),
 
-            ("Slide 6: Lead-Time Warning & Dropout Robustness", "Performance Under Warning Horizons and Missing Data",
+            ("Slide 6: Event-Level Advance Detection vs Day-Level Recall", "Performance Under Warning Horizons and Missing Data",
              f"Lead-Time Analysis (372 test flare events in test cohort):\n"
-             f"• 48h Ahead Warning: {LEAD_TIME['sensitivity_at_48h_ahead']*100:.1f}% sensitivity on synthetic test labels\n"
-             f"• 36h Ahead Warning: {LEAD_TIME['sensitivity_at_36h_ahead']*100:.1f}% sensitivity\n"
-             f"• 24h Ahead Warning: {LEAD_TIME['sensitivity_at_24h_ahead']*100:.1f}% sensitivity\n"
-             f"• Clinical Alert Workload: {LEAD_TIME['average_alerts_per_patient_per_month']:.2f} alerts/pt/month (~{LEAD_TIME['average_alerts_per_patient_per_year']:.2f} alerts/year)\n\n"
+             f"• 48h/36h/24h Event Rule: Alert on Day d-2 OR Day d-1 -> 372/372 = 100.0% event detection.\n"
+             f"• 12h Event Rule: Alert on Day d-1 specifically -> 355/372 = 95.4% event detection.\n"
+             f"• Day-Level Recall: 93.41% (695 of 744 individual impending flare days flagged in test set).\n"
+             f"• Clinical Workload: 0.77 alert days/pt/month (919 total alert days / 1200 patient-months in test set),\n"
+             f"  representing individual alert days, not grouped multi-day episodes (~0.25-0.30 episodes/pt/mo).\n\n"
              f"Wearable Data Random Dropout Robustness:\n"
              f"• 0% Missing:   ROC-AUC {drop[0]['roc_auc']:.4f} | Recall {drop[0]['recall']*100:.1f}% | Precision {drop[0]['precision']*100:.1f}% | F1 {drop[0]['f1_score']:.4f}\n"
              f"• 10% Missing:  ROC-AUC {drop[1]['roc_auc']:.4f} | Recall {drop[1]['recall']*100:.1f}% | Precision {drop[1]['precision']*100:.1f}% | F1 {drop[1]['f1_score']:.4f}\n"
              f"• 20% Missing:  ROC-AUC {drop[2]['roc_auc']:.4f} | Recall {drop[2]['recall']*100:.1f}% | Precision {drop[2]['precision']*100:.1f}% | F1 {drop[2]['f1_score']:.4f}\n"
              f"• 30% Missing:  ROC-AUC {drop[3]['roc_auc']:.4f} | Recall {drop[3]['recall']*100:.1f}% | Precision {drop[3]['precision']*100:.1f}% | F1 {drop[3]['f1_score']:.4f}"),
 
-            ("Slide 7: Explainability & What-If Simulator", "Transparent SHAP Attribution & Sensitivity Modeling",
+            ("Slide 7: Explainability & What-If Sensitivity Simulator", "Transparent SHAP Attribution & Sensitivity Modeling",
              "• SHAP TreeExplainer Attribution: Local log-odds converted to probability percentage points.\n"
-             "  Mathematically reconciled: Cohort Reference Prior (3.6%) + Bars = Displayed Risk%.\n"
-             "• 9 Factors: SpO2 vs baseline, resting HR, respiratory rate, sleep, steps, CAMS NAQI, dust, weather, adherence.\n"
+             "  Mathematically reconciled: Cohort Reference Baseline (3.6%) + Bars = Displayed Risk%.\n"
+             "• 9 Clinical Factors: SpO2 vs baseline, resting HR, respiratory rate, sleep, steps, CAMS NAQI, dust, weather, adherence.\n"
              "• Counterfactual What-If Simulator:\n"
              "  - Allows interactive adjustment of indoor AQI reduction (0 to -150), adherence boost (+0 to +50%),\n"
              "    and thermal swing dampening (0 to -8°C).\n"
-             "  - Shows model mathematical sensitivity on synthetic feature distributions;\n"
-             "    does NOT claim a proven clinical effect in real patients."),
+             "  - Shows model sensitivity on synthetic data; does NOT claim a proven clinical intervention effect."),
 
             ("Slide 8: Interactive Clinical Dashboard", "Editorial-Clinical Hospital Monitoring UI",
-             "• Editorial Design: Warm off-white surface, deep teal accent, serif headings, light/glass cards.\n"
+             "• Editorial Design: Warm off-white theme, deep teal accent, serif headings, light/glass cards.\n"
              "• 3D Lung Digital Twin: Three.js breathing model with respiratory rate pacing and risk tinting.\n"
              "• 5 Vital Tiles: SpO2, HR, RR, Sleep, Steps with 7-day sparklines and baseline deviation delta.\n"
              "• 365-Day Live Simulation Engine: Play/Pause/Speed controls, date scrubber, and 'Jump to Next Alert'.\n"
              "• Light/Glass Longitudinal Telemetry: Deep teal SpO2, crimson HR, amber CAMS NAQI, and steps bars.\n"
              "• Delhi GIS Station Map: 5 ambient stations with patient pinned and micro-climate readings.\n"
-             "• Error Boundary: Robust fault isolation preventing blank screen failures."),
+             "• Error Boundary: Fault-tolerant architecture preventing blank screen crashes."),
 
-            ("Slide 9: Scientific & Clinical Limitations", "Transparent Statement of Limitations",
-             "1. Synthetic Patient Cohort: All static EHR and continuous wearable records are synthetic.\n"
-             "   No real patient data was utilized.\n"
-             "2. Label Rule Recovery: Flare-up labels were generated according to our own physiological drift simulation\n"
-             "   rules; high performance reflects accurate recovery of these rules on synthetic data.\n"
-             "3. No Real Patient Clinical Evidence: There is no prospective or retrospective evidence showing this model\n"
-             "   operates safely or effectively in clinical practice.\n"
-             "4. Modelled Atmospheric Data: Air quality and weather are from Open-Meteo reanalysis models (CAMS and ERA5),\n"
-             "   not physical hardware monitoring stations.\n"
-             "5. Illustrative Pollen Index: The pollen formula is an illustrative seasonal mathematical curve, not measured data.\n"
-             "6. Decision-Support Only: Research prototype for decision-support; not a diagnostic tool."),
+            ("Slide 9: Honest Scientific & Clinical Limitations", "Transparent Statement of Limitations",
+             "1. Synthetic Cohort: Uses GOLD/GINA stage categories; proportions are our assumptions.\n"
+             "   Flare labels were assigned by our own drift simulation rules; metrics reflect rule recovery.\n"
+             "2. Synthetic Flare Rate: Averages ~3.64 flares/patient/year (1,821 events across 500 patients over 365 days;\n"
+             "   372 flares across 100 test patients), which is higher than typical real-world outpatient rates.\n"
+             "3. Uncapped Dust Hazard: In calculate_daily_flare_hazard, dust excess was not capped prior to multiplier\n"
+             "   calculation, though the composite daily hazard was bounded by an overall ceiling of 0.12 (12%/day).\n"
+             "4. No Real Patient Evidence: No prospective or retrospective evidence demonstrating safety or efficacy.\n"
+             "5. Modelled Weather & AQI: From Open-Meteo CAMS and ERA5 reanalysis models, not hardware monitoring stations.\n"
+             "6. Decision Support Only: Research prototype for decision-support; not a diagnostic tool."),
 
-            ("Slide 10: Summary & Submission Deliverables", "Project Deliverables & Repository Information",
-             "• Team: Monalika Doda, SRM University Delhi-NCR, <MY TEAM NAME>, solo.\n"
+            ("Slide 10: Assets, Credits & Public Access", "Project Deliverables & Repository Information",
+             "• Author: Monalika Doda, SRM University Delhi-NCR, <MY TEAM NAME>, solo.\n"
              "• Repository: https://github.com/MonalikaDoda/PulmoTwin\n"
-             "• Stack: Python 3.10+ (FastAPI, XGBoost, SHAP, Pandas) + React 18 (Vite, Three.js).\n"
+             "• Assets & Credits:\n"
+             "  - 3D Lung Model: 'Lungs' by prasanth.k on Sketchfab (CC BY 4.0, https://skfb.ly/oqOP7)\n"
+             "  - Weather & Air Quality: Open-Meteo.com (Copernicus CAMS & ECMWF ERA5) under CC BY 4.0\n"
              "• Deliverables in docs/:\n"
              "  - docs/PulmoTwin_Architecture_Diagram.pdf (Vector pipeline)\n"
              "  - docs/PulmoTwin_Presentation_Deck.pdf (Executive pitch deck)\n"
-             "  - docs/architecture.md and docs/deck_outline.md\n"
              "• License: MIT License (Copyright (c) 2026 Monalika Doda)\n"
-             "• Development: Built with AI coding assistance (Antigravity).\n"
-             "• Public Access: Both backend (port 8000) and frontend (port 3000) run locally with zero external API keys.")
+             "• Assistance Disclosure: Built with AI coding assistance (Antigravity).\n"
+             "• Quick-Start: Run backend on port 8000, frontend on port 3000. Step 3 is optional.")
         ]
 
         for title, subtitle, content in slides:
@@ -226,7 +226,7 @@ def create_presentation_deck():
             rect_h = patches.Rectangle((0, 0.88), 1, 0.12, facecolor='#0f766e', edgecolor='none')
             ax.add_patch(rect_h)
 
-            ax.text(0.04, 0.95, subtitle, fontsize=16, fontweight='bold', color='#ffffff', va='center')
+            ax.text(0.04, 0.95, subtitle, fontsize=15.5, fontweight='bold', color='#ffffff', va='center')
             ax.text(0.04, 0.905, title, fontsize=10.5, color='#ccfbf1', va='center')
 
             # Content Box
@@ -234,7 +234,7 @@ def create_presentation_deck():
                                             facecolor='#f8fafc', edgecolor='#e2e8f0', linewidth=1.2)
             ax.add_patch(rect_c)
 
-            ax.text(0.07, 0.79, content, fontsize=10.5, color='#0f172a', va='top', linespacing=1.55)
+            ax.text(0.07, 0.79, content, fontsize=10.5, color='#0f172a', va='top', linespacing=1.52)
 
             # Footer
             ax.text(0.04, 0.035, "PulmoTwin • Monalika Doda • SRM University Delhi-NCR • Research Prototype", fontsize=9, color='#64748b')
@@ -249,4 +249,4 @@ if __name__ == "__main__":
     create_architecture_diagram()
     print("Generating PulmoTwin_Presentation_Deck.pdf...")
     create_presentation_deck()
-    print("PDF generation complete with real metrics!")
+    print("PDF generation complete with exact ground-truth values and credits!")

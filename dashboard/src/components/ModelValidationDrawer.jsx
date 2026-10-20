@@ -1,5 +1,5 @@
 import React from 'react'
-import { X, BookOpen, AlertTriangle, Database, Clock, Activity, Cpu, Wind } from 'lucide-react'
+import { X, BookOpen, AlertTriangle, Database, Clock, Activity, Cpu, Wind, Info, Heart } from 'lucide-react'
 import ErrorBoundary from './ErrorBoundary'
 
 function ModelValidationDrawerInner({ isOpen, onClose, analyticsData }) {
@@ -14,10 +14,12 @@ function ModelValidationDrawerInner({ isOpen, onClose, analyticsData }) {
   ]
 
   const leadTime = analyticsData?.lead_time_summary || {
+    total_test_flare_events: 372,
     sensitivity_at_48h_ahead: 1.0,
     sensitivity_at_36h_ahead: 1.0,
     sensitivity_at_24h_ahead: 1.0,
     sensitivity_at_12h_ahead: 0.9543,
+    total_alerts_triggered_in_test_cohort: 919,
     average_alerts_per_patient_per_month: 0.77,
     average_alerts_per_patient_per_year: 9.19
   }
@@ -30,10 +32,10 @@ function ModelValidationDrawerInner({ isOpen, onClose, analyticsData }) {
   ]
 
   const primaryRecall = analyticsData?.recall !== undefined ? (analyticsData.recall * 100).toFixed(1) : '93.4'
-  const monthlyAlerts = leadTime.average_alerts_per_patient_per_month !== undefined 
+  const monthlyAlertDays = leadTime.average_alerts_per_patient_per_month !== undefined 
     ? Number(leadTime.average_alerts_per_patient_per_month).toFixed(2) 
     : '0.77'
-  const yearlyAlerts = leadTime.average_alerts_per_patient_per_year !== undefined
+  const yearlyAlertDays = leadTime.average_alerts_per_patient_per_year !== undefined
     ? Number(leadTime.average_alerts_per_patient_per_year).toFixed(2)
     : '9.19'
 
@@ -53,7 +55,7 @@ function ModelValidationDrawerInner({ isOpen, onClose, analyticsData }) {
       <div style={{
         background: '#ffffff',
         width: '100%',
-        maxWidth: 620,
+        maxWidth: 640,
         height: '100vh',
         overflowY: 'auto',
         boxShadow: '-4px 0 24px rgba(0, 0, 0, 0.12)',
@@ -137,7 +139,7 @@ function ModelValidationDrawerInner({ isOpen, onClose, analyticsData }) {
                   <th style={{ padding: '6px 4px' }}>Model Stage</th>
                   <th style={{ padding: '6px 4px' }}>ROC-AUC</th>
                   <th style={{ padding: '6px 4px' }}>PR-AUC</th>
-                  <th style={{ padding: '6px 4px' }}>Recall (48h)</th>
+                  <th style={{ padding: '6px 4px' }}>Recall (Day)</th>
                   <th style={{ padding: '6px 4px' }}>Precision</th>
                   <th style={{ padding: '6px 4px' }}>F1</th>
                 </tr>
@@ -176,41 +178,57 @@ function ModelValidationDrawerInner({ isOpen, onClose, analyticsData }) {
               color: 'var(--text-muted)',
               lineHeight: 1.5
             }}>
-              <strong>Honest Ablation Finding:</strong> On this synthetic dataset, continuous wearable vitals (M1) already yield PR-AUC 0.9042 and F1 0.8353. Adding static EHR and environmental features (M4) provides virtually negligible quantitative gain (+0.0036 PR-AUC, +0.0005 F1), showing that wearable vital trajectory drift accounts for nearly all predictive signal in the generator.
+              <strong>Honest Ablation Finding:</strong> On this synthetic dataset, continuous wearable vitals (M1) already yield PR-AUC 0.9042 and F1 0.8353. Adding static EHR and environmental features (M4) provides virtually negligible quantitative gain (+0.0036 PR-AUC, +0.0005 F1), showing that vital sign drift accounts for nearly all predictive signal in the generator.
             </div>
           </div>
 
-          {/* Section 2: Warning Horizons & Clinical Workload */}
+          {/* Section 2: Event-Level Advance Detection vs Day-Level Recall */}
           <div>
             <h3 className="heading-serif" style={{ fontSize: 16, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
               <Clock size={15} color="var(--teal-deep)" />
-              2. Warning Horizons & Clinical Workload
+              2. Event-Level Advance Detection vs. Day-Level Recall
             </h3>
             
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 8 }}>
               <div style={{ background: 'var(--bg-subtle)', padding: '12px 14px', borderRadius: 12, border: '1px solid var(--border-subtle)' }}>
                 <span style={{ fontSize: 11.5, color: 'var(--text-muted)', fontWeight: 500 }}>
-                  Test Recall (48h Optimal)
+                  Event Detection (48h Ahead)
                 </span>
                 <div className="font-serif" style={{ fontSize: 28, color: 'var(--teal-deep)', fontWeight: 600 }}>
-                  {primaryRecall}%
+                  100.0%
                 </div>
                 <span style={{ fontSize: 11.5, color: 'var(--text-muted)' }}>
-                  Test cohort recall at optimal threshold across 48-hour window.
+                  372 of 372 test flare events had an alert on Day -2 or Day -1.
                 </span>
               </div>
 
               <div style={{ background: 'var(--bg-subtle)', padding: '12px 14px', borderRadius: 12, border: '1px solid var(--border-subtle)' }}>
                 <span style={{ fontSize: 11.5, color: 'var(--text-muted)', fontWeight: 500 }}>
-                  Clinical Alert Burden
+                  Day-Level Test Recall
                 </span>
                 <div className="font-serif" style={{ fontSize: 28, color: 'var(--teal-deep)', fontWeight: 600 }}>
-                  {monthlyAlerts}
+                  {primaryRecall}%
                 </div>
                 <span style={{ fontSize: 11.5, color: 'var(--text-muted)' }}>
-                  Average alerts per patient per month (~{yearlyAlerts} alerts/year).
+                  695 of 744 individual impending flare days flagged (49 false neg days).
                 </span>
               </div>
+            </div>
+
+            <div style={{
+              marginTop: 10,
+              padding: '10px 12px',
+              background: '#f8fafc',
+              border: '1px solid #e2e8f0',
+              borderRadius: 6,
+              fontSize: 11.5,
+              color: 'var(--text-muted)',
+              lineHeight: 1.5
+            }}>
+              <strong>Exact Lead-Time Rules:</strong>
+              <br/>• <strong>48h/36h/24h Rule:</strong> An acute flare event is counted as detected if an alert fired on either Day <em>d - 2</em> or Day <em>d - 1</em>. Every test flare event had at least one alert (372/372 = 100%).
+              <br/>• <strong>12h Rule:</strong> Checked strictly on Day <em>d - 1</em> specifically (355/372 = 95.4%).
+              <br/>• <strong>Workload Metric ({monthlyAlertDays} alert days/patient/month):</strong> Counts <strong>individual alert days</strong> (919 total alert days / 1200 patient-months in test set), <em>not</em> grouped episodes. Multi-day episodes average ~0.25–0.30 per patient per month.
             </div>
           </div>
 
@@ -301,26 +319,27 @@ function ModelValidationDrawerInner({ isOpen, onClose, analyticsData }) {
               Honest Scientific & Clinical Limitations
             </h4>
             <ul style={{ paddingLeft: 18, display: 'flex', flexDirection: 'column', gap: 4, margin: 0 }}>
-              <li><strong>Synthetic Patient Cohort:</strong> Static EHR and wearable time-series are entirely synthetic. Flare-up labels were assigned according to our own physiological drift simulation rules, so high performance reflects rule recovery on synthetic data rather than clinical efficacy.</li>
-              <li><strong>No Real Patient Evidence:</strong> There is no prospective or retrospective clinical evidence demonstrating this model operates safely or effectively on real patients.</li>
-              <li><strong>Real Modelled/Reanalysis Weather & Air Quality:</strong> Data retrieved from Open-Meteo (CAMS and ERA5-Land reanalysis); not physical hardware station feeds. Weather data by Open-Meteo.com under CC BY 4.0.</li>
+              <li><strong>Synthetic Patient Cohort:</strong> Uses GOLD/GINA stage categories; proportions are our assumptions. All records are synthetic. Flare labels were assigned by our own drift simulation rules; high metrics reflect rule recovery on synthetic data rather than clinical efficacy.</li>
+              <li><strong>Flare Frequency in Cohort:</strong> The synthetic cohort averages <strong>~3.64 flare-ups per patient per year</strong> (1,821 events across 500 patients over 365 days; 372 flares across 100 test patients). In real-world outpatient populations, annual flare rates are often lower.</li>
+              <li><strong>Dust Flare Hazard Modeling:</strong> In <code>calculate_daily_flare_hazard</code>, dust excess (<code>max(0.0, dust - 50.0)</code>) was <em>not capped</em> before calculating the multiplier. While the composite daily hazard was capped by an overall ceiling of 0.12 (12%/day), rare pre-monsoon dust spikes created large multiplier values.</li>
+              <li><strong>No Real Patient Evidence:</strong> No clinical trials or prospective studies have evaluated this tool on real patients.</li>
+              <li><strong>Real Modelled/Reanalysis Weather & Air Quality:</strong> Data retrieved from Open-Meteo (Copernicus CAMS and ECMWF ERA5-Land reanalysis); not physical hardware station feeds. Weather data by Open-Meteo.com under CC BY 4.0.</li>
               <li><strong>Simulated Pollen:</strong> Illustrative seasonal curve placed near calendar seasons, not fitted to measured aerobiological trap data.</li>
               <li><strong>What-If Simulator:</strong> Demonstrates model mathematical sensitivity on synthetic feature distributions, not a verified clinical therapeutic effect.</li>
               <li><strong>Built With AI Assistance:</strong> Built with AI coding assistance (Antigravity).</li>
             </ul>
           </div>
 
-          {/* Section 5: Data Provenance */}
+          {/* Section 5: Assets & Credits */}
           <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: 14 }}>
             <h4 className="heading-serif" style={{ fontSize: 14, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
               <Database size={14} color="var(--teal-deep)" />
-              Data Provenance & Attribution Summary
+              Assets & Credits
             </h4>
-            <div style={{ fontSize: 11.5, color: 'var(--text-muted)', lineHeight: 1.5 }}>
-              <div>• <strong>Weather:</strong> Real modelled ECMWF ERA5-Land Reanalysis via Open-Meteo (CC BY 4.0).</div>
-              <div>• <strong>Air Quality:</strong> Real modelled Copernicus CAMS Data via Open-Meteo converted to Indian CPCB NAQI breakpoints.</div>
-              <div>• <strong>Pollen:</strong> Illustrative seasonal mathematical model (not sensor data).</div>
-              <div>• <strong>Cohort:</strong> 500 synthetic COPD & Asthma patients (GOLD 1–4, GINA 1–5).</div>
+            <div style={{ fontSize: 11.5, color: 'var(--text-muted)', lineHeight: 1.6 }}>
+              <div>• <strong>3D Lung Model:</strong> "Lungs" by prasanth.k on Sketchfab (<a href="https://skfb.ly/oqOP7" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--teal-deep)' }}>https://skfb.ly/oqOP7</a>), licensed under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--teal-deep)' }}>Creative Commons Attribution (CC BY 4.0)</a>.</div>
+              <div>• <strong>Weather & Air Quality:</strong> Open-Meteo.com (Copernicus CAMS & ECMWF ERA5-Land Reanalysis) under CC BY 4.0.</div>
+              <div>• <strong>Cohort Categories:</strong> Uses GOLD/GINA stage categories; proportions are our assumptions.</div>
             </div>
           </div>
 
