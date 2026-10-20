@@ -87,27 +87,27 @@ PulmoTwin explores whether continuous multi-modal data can detect these pre-flar
 
 ```mermaid
 sequenceDiagram
-    autonumber
-    actor Patient as "Outpatient (COPD / Asthma)"
-    participant Sensors as "Wearable Sensors"
-    participant WeatherAPI as "Open-Meteo CAMS / ERA5"
-    participant Engine as "PulmoTwin AI Engine (FastAPI)"
-    actor Nurse as "Care Coordinator"
-    actor Doctor as "Pulmonologist"
+    actor Patient as Outpatient COPD / Asthma
+    participant Sensors as Wearable Sensors
+    participant WeatherAPI as Open-Meteo CAMS / ERA5
+    participant Engine as PulmoTwin AI Engine (FastAPI)
+    actor Nurse as Care Coordinator
+    actor Doctor as Pulmonologist
 
-    Sensors->>Engine: "Daily SpO2, HR, RR, Sleep, Steps"
-    WeatherAPI->>Engine: "Delhi CPCB NAQI, Dust, Temp Swing, Pollen"
-    Engine->>Engine: "Compute personal baseline deviations & 3-day trends"
-    Engine->>Engine: "XGBoost inference (48h flare probability)"
-    alt Impending Flare Detected (Risk >= Threshold)
-        Engine->>Nurse: "Push 48h early warning alert & SHAP drivers"
-        Nurse->>Patient: "Tele-triage check-in & symptom verification"
-        Nurse->>Doctor: "Queue order review (Action plan step-up / air purifier)"
-        Doctor->>Patient: "Prescribe preventative action 48h before crisis"
+    Sensors->>Engine: Daily SpO2, HR, RR, Sleep, Steps
+    WeatherAPI->>Engine: Delhi CPCB NAQI, Dust, Temp Swing, Pollen
+    Engine->>Engine: Compute personal baseline deviations & 3-day trends
+    Engine->>Engine: XGBoost inference (48h flare probability)
+    alt Impending Flare Detected (Risk at or above Threshold)
+        Engine->>Nurse: Push 48h early warning alert & SHAP drivers
+        Nurse->>Patient: Tele-triage check-in & symptom verification
+        Nurse->>Doctor: Queue order review (Action plan step-up / air purifier)
+        Doctor->>Patient: Prescribe preventative action 48h before crisis
     else Patient Stable (Risk < Threshold)
-        Engine->>Engine: "Continue passive surveillance (0.77 alert days/pt/month)"
+        Engine->>Engine: Continue passive surveillance (0.77 alert days/pt/month)
     end
 ```
+
 
 ---
 
@@ -133,7 +133,7 @@ flowchart TD
 
     subgraph Layer3["Layer 3: Machine Learning & Explainability"]
         XGB["XGBoost Binary Classifier<br/>ROC-AUC: 0.9982 | PR-AUC: 0.9078"]
-        SHAP["SHAP TreeExplainer<br/>Sigmoid Attribution Sharing<br/>Baseline 3.6% + Bars = Displayed Risk"]
+        SHAP["SHAP TreeExplainer<br/>Sequential Probability Attribution<br/>Model Baseline 36.2% + Bars = Displayed Risk"]
         WHATIF["What-If Sensitivity Simulator<br/>Adjusted AQI, Adherence & Thermal Inputs"]
     end
 
@@ -256,9 +256,14 @@ From [`model/comprehensive_metrics.json`](model/comprehensive_metrics.json), sim
 
 ### 7.6 Explainable AI & What-If Sensitivity Simulator
 
-#### SHAP Attribution Sharing
-Using `shap.TreeExplainer`, local feature contributions in log-odds space are converted into probability percentage point shifts from the **Cohort Reference Prior (3.6%)**:
-$$\text{Cohort Baseline (3.6\%)} + \sum_{i=1}^{9} \text{Factor Impact}_i \equiv \text{Displayed 48h Risk\%}$$
+#### SHAP Sequential Probability Attribution
+Using `shap.TreeExplainer`, local feature contributions in log-odds space are grouped into 9 clinical factor categories. Rather than proportional scaling (which is susceptible to cancellation instabilities when positive and negative SHAP values offset), attribution is calculated sequentially from the model baseline, ordered by factor magnitude ($|\Phi_k|$ descending):
+
+1. **Model Baseline**: Base log-odds $\text{base} = \text{explainer.expected\_value} = -0.56817$, yielding $\text{Model baseline} = \sigma(-0.56817) \times 100 = 36.2\%$.
+2. **Sequential Step**: Factors are ordered by absolute log-odds contribution $|\Phi_1| \ge |\Phi_2| \ge \dots \ge |\Phi_9|$. For factor $k$ with cumulative log-odds $\text{cum}_k = \sum_{i=1}^k \Phi_i$:
+   $$\text{Shift}_k = \left[\sigma(\text{base} + \text{cum}_k) - \sigma(\text{base} + \text{cum}_{k-1})\right] \times 100$$
+3. **Exact Reconciliation**: Because the telescoping sum $\sum_{k=1}^9 \text{Shift}_k$ equals $[\sigma(\text{margin}) - \sigma(\text{base})] \times 100$, the displayed risk exactly equals baseline plus the sum of factor shifts:
+   $$\text{Model Baseline (36.2\%)} + \sum_{k=1}^{9} \text{Factor Shift}_k \equiv \text{Displayed 48h Risk\%}$$
 
 #### What-If Sensitivity Simulator
 The What-If engine recalculates the model's predicted probability when users modify environmental or adherence inputs:

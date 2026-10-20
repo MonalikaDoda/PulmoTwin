@@ -78,7 +78,7 @@ def create_architecture_diagram():
         m4_rec = METRICS["recall"] * 100
         l3_boxes = [
             (0.06, 0.22, 0.26, 0.14, f"XGBoost Binary Classifier\n• 48h Advance Flare Forecast\n• ROC-AUC: {METRICS['roc_auc']:.4f} | PR-AUC: {m4_pr:.4f}\n• Day Recall: {m4_rec:.1f}% | Prec: {METRICS['precision']*100:.1f}%\n• 4-Stage Ablation Benchmarks"),
-            (0.37, 0.22, 0.26, 0.14, "SHAP Factor Attribution\n• TreeExplainer local attribution\n• Sigmoid-shared percentage points\n• Baseline (3.6%) + Bars = Risk%\n• 9 Clinical actionable factors"),
+            (0.37, 0.22, 0.26, 0.14, "SHAP Factor Attribution\n• TreeExplainer sequential attribution\n• Ordered by factor size (|phi|)\n• Model Baseline (36.2%) + Bars = Risk%\n• 9 Clinical actionable factors"),
             (0.68, 0.22, 0.26, 0.14, "What-If Sensitivity Engine\n• Recalculates model output\n• Air filtration (AQI delta)\n• Inhaler compliance booster\n• Model sensitivity on synthetic data")
         ]
         for x, y, w, h, text in l3_boxes:
@@ -174,8 +174,8 @@ def create_presentation_deck():
              f"• 30% Missing:  ROC-AUC {drop[3]['roc_auc']:.4f} | Recall {drop[3]['recall']*100:.1f}% | Precision {drop[3]['precision']*100:.1f}% | F1 {drop[3]['f1_score']:.4f}"),
 
             ("Slide 7: Explainability & What-If Sensitivity Simulator", "Transparent SHAP Attribution & Sensitivity Modeling",
-             "• SHAP TreeExplainer Attribution: Local log-odds converted to probability percentage points.\n"
-             "  Mathematically reconciled: Cohort Reference Baseline (3.6%) + Bars = Displayed Risk%.\n"
+             "• SHAP TreeExplainer Attribution: Sequential probability attribution ordered by factor size.\n"
+             "  Mathematically reconciled: Model Baseline (36.2%) + Bars = Displayed Risk%.\n"
              "• 9 Clinical Factors: SpO2 vs baseline, resting HR, respiratory rate, sleep, steps, CAMS NAQI, dust, weather, adherence.\n"
              "• Counterfactual What-If Simulator:\n"
              "  - Allows interactive adjustment of indoor AQI reduction (0 to -150), adherence boost (+0 to +50%),\n"

@@ -56,7 +56,7 @@
   - 30% Missing: ROC-AUC 0.9861 | Recall 37.90% | Precision 78.55% | F1 0.5113
 
 ### Slide 7: Explainability & What-If Sensitivity Simulator
-- **SHAP TreeExplainer:** Converts log-odds to probability percentage points. Reconciled: Cohort Reference Baseline (3.6%) + Bars = Displayed Risk%.
+- **SHAP TreeExplainer:** Sequential probability attribution ordered by size. Reconciled: Model baseline (36.2%) + Bars = Displayed Risk%.
 - **9 Clinical Factors:** SpO2 vs baseline, resting HR, respiratory rate, sleep, steps, CAMS NAQI, dust, weather, adherence.
 - **Counterfactual What-If Simulator:** Interactive sliders (indoor AQI reduction 0 to -150, adherence boost +0 to +50%, thermal swing dampening 0 to -8°C).
 - **Scientific Clarity:** Shows model sensitivity on synthetic data; does not claim a proven clinical intervention effect.

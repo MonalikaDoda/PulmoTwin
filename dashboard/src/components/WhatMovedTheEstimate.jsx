@@ -9,8 +9,8 @@ export default function WhatMovedTheEstimate({
 }) {
   const [showAllFactors, setShowAllFactors] = useState(false)
 
-  // Use model's average predicted risk as baseline (cohort reference prior)
-  const baselineRisk = shapData?.baseline_risk !== undefined ? shapData.baseline_risk : 3.6
+  // Use TreeExplainer base value as baseline: sigmoid(expected_value) = 36.2%
+  const baselineRisk = shapData?.baseline_risk !== undefined ? shapData.baseline_risk : 36.2
   const displayedRisk = shapData?.displayed_risk !== undefined ? shapData.displayed_risk : riskScore
 
   // Format values safely to 1 decimal digit
@@ -103,7 +103,7 @@ export default function WhatMovedTheEstimate({
     const delta = displayedRisk - baselineRisk
     const defaultSum = defaultFactorDefinitions.reduce((acc, f) => acc + f.defaultImpact, 0)
     const factorScale = Math.abs(defaultSum) > 1e-4 && Math.abs(delta) > 0.05 ? delta / defaultSum : 0
-    return defaultFactorDefinitions.map((f) => {
+    const rows = defaultFactorDefinitions.map((f) => {
       const imp = parseFloat((f.defaultImpact * factorScale).toFixed(1))
       return {
         id: f.id,
@@ -113,6 +113,17 @@ export default function WhatMovedTheEstimate({
         isHazard: imp > 0
       }
     })
+    const curSum = parseFloat(rows.reduce((acc, r) => acc + r.impact, 0).toFixed(1))
+    const diff = parseFloat((delta - curSum).toFixed(1))
+    if (diff !== 0 && rows.length > 0) {
+      let maxIdx = 0
+      for (let i = 1; i < rows.length; i++) {
+        if (Math.abs(rows[i].impact) > Math.abs(rows[maxIdx].impact)) maxIdx = i
+      }
+      rows[maxIdx].impact = parseFloat((rows[maxIdx].impact + diff).toFixed(1))
+      rows[maxIdx].isHazard = rows[maxIdx].impact > 0
+    }
+    return rows
   }, [shapData, displayedRisk, baselineRisk, currentTelemetry, patientProfile])
 
   // Sort factors by absolute impact descending
@@ -153,7 +164,7 @@ export default function WhatMovedTheEstimate({
             }}
           >
             <CheckCircle2 size={12} color="var(--teal-mid)" />
-            Baseline + Bars = Displayed Risk ({baselineRisk.toFixed(1)}% {sumBars >= 0 ? `+ ${sumBars.toFixed(1)}%` : `- ${Math.abs(sumBars).toFixed(1)}%`} = {displayedRisk.toFixed(1)}%)
+            Model baseline + Bars = Displayed Risk ({baselineRisk.toFixed(1)}% {sumBars >= 0 ? `+ ${sumBars.toFixed(1)}%` : `- ${Math.abs(sumBars).toFixed(1)}%`} = {displayedRisk.toFixed(1)}%)
           </span>
         </div>
 
@@ -169,7 +180,7 @@ export default function WhatMovedTheEstimate({
           }}
         >
           <Info size={13} color="var(--teal-mid)" />
-          How to read this: Factors are sorted by magnitude of clinical influence. Horizontal bars show percentage point shifts from cohort reference baseline ({baselineRisk.toFixed(1)}%) to this patient's 48-hour forecast ({displayedRisk.toFixed(1)}%).
+          How to read this: Attribution is sequential, ordered by factor magnitude. Horizontal bars show percentage point shifts from Model baseline ({baselineRisk.toFixed(1)}%) to this patient's 48-hour forecast ({displayedRisk.toFixed(1)}%).
         </p>
       </div>
 
@@ -344,7 +355,7 @@ export default function WhatMovedTheEstimate({
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           <span>
-            Cohort Prior: <strong>{baselineRisk.toFixed(1)}%</strong>
+            Model baseline: <strong>{baselineRisk.toFixed(1)}%</strong>
           </span>
           <span style={{ color: 'var(--text-light)' }}>+</span>
           <span>
@@ -360,7 +371,7 @@ export default function WhatMovedTheEstimate({
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: 'var(--text-muted)' }}>
           <CheckCircle2 size={13} color="var(--teal-mid)" />
-          <span>TreeExplainer Sigmoid Attribution</span>
+          <span>Sequential probability attribution</span>
         </div>
       </div>
     </div>

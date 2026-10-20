@@ -51,7 +51,7 @@ DELHI_STATIONS_META: Optional[dict] = None
 MODEL = None
 EXPLAINER = None
 METRICS_CACHE = None
-COHORT_BASELINE_RISK: float = 3.6  # Model average predicted risk across population
+COHORT_BASELINE_RISK: float = 36.2  # Model baseline risk from explainer.expected_value
 SIMULATION_TIMELINE_CACHE: Dict[str, List[dict]] = {}
 
 FEATURE_COLUMNS = [
@@ -127,14 +127,14 @@ def load_resources():
         MODEL = joblib.load(os.path.join(MODEL_DIR, "pulmotwin_xgboost.joblib"))
         EXPLAINER = joblib.load(os.path.join(MODEL_DIR, "shap_explainer.joblib"))
         
-        # Calculate true population baseline risk from sample
+        # Calculate model baseline risk from TreeExplainer base value (sigmoid of expected_value)
         try:
-            sample_X = DF_FEATURES[FEATURE_COLUMNS].sample(min(5000, len(DF_FEATURES)), random_state=42)
-            COHORT_BASELINE_RISK = round(float(MODEL.predict_proba(sample_X)[:, 1].mean() * 100.0), 1)
+            base_log_odds = float(EXPLAINER.expected_value)
+            COHORT_BASELINE_RISK = round(float(1.0 / (1.0 + np.exp(-base_log_odds)) * 100.0), 1)
         except Exception:
-            COHORT_BASELINE_RISK = 3.6
+            COHORT_BASELINE_RISK = 36.2
             
-        print(f"[API] Resources successfully loaded. Cohort Baseline Risk: {COHORT_BASELINE_RISK}%.")
+        print(f"[API] Resources successfully loaded. Model Baseline Risk: {COHORT_BASELINE_RISK}%.")
 
 @app.on_event("startup")
 def startup_event():
@@ -322,7 +322,8 @@ def get_patient_shap_explanation(patient_id: str, day_number: Optional[int] = Qu
     X_row = p_row[FEATURE_COLUMNS]
     prob = float(MODEL.predict_proba(X_row)[0, 1])
     displayed_risk = round(prob * 100.0, 1)
-    baseline_risk = COHORT_BASELINE_RISK
+    base_log_odds = float(EXPLAINER.expected_value)
+    baseline_risk = round(float(1.0 / (1.0 + np.exp(-base_log_odds)) * 100.0), 1)
     delta = round(displayed_risk - baseline_risk, 1)
     
     # Run TreeExplainer
@@ -332,18 +333,24 @@ def get_patient_shap_explanation(patient_id: str, day_number: Optional[int] = Qu
     
     raw_group_shap = {}
     for g_id, f_list in FACTOR_GROUPS.items():
-        raw_group_shap[g_id] = sum(shap_vals[feat_to_idx[f]] for f in f_list if f in feat_to_idx)
+        raw_group_shap[g_id] = float(sum(shap_vals[feat_to_idx[f]] for f in f_list if f in feat_to_idx))
         
-    tot_shap = sum(raw_group_shap.values())
-    if abs(tot_shap) > 1e-4 and abs(delta) > 0.05:
-        calc_shifts = {g: delta * (v / tot_shap) for g, v in raw_group_shap.items()}
-    else:
-        calc_shifts = {g: 0.0 for g in raw_group_shap}
+    # Sequential probability attribution: sort factors by |phi| descending
+    # Telescoping sigmoid from base_log_odds so baseline + sum(shifts) == displayed_risk
+    sorted_groups = sorted(raw_group_shap.items(), key=lambda kv: abs(kv[1]), reverse=True)
+    prev_cum = 0.0
+    shifts = {}
+    for g_id, phi in sorted_groups:
+        cum = prev_cum + phi
+        p_prev = 1.0 / (1.0 + np.exp(-(base_log_odds + prev_cum)))
+        p_curr = 1.0 / (1.0 + np.exp(-(base_log_odds + cum)))
+        shifts[g_id] = (p_curr - p_prev) * 100.0
+        prev_cum = cum
         
-    rounded_shifts = {g: round(float(v), 1) for g, v in calc_shifts.items()}
+    rounded_shifts = {g: round(float(v), 1) for g, v in shifts.items()}
     
-    # Exact reconciliation to ensure Baseline + sum(shifts) == Displayed Risk to the decimal point
-    diff = round(delta - sum(rounded_shifts.values()), 1)
+    # Exact reconciliation of floating rounding difference into the largest factor
+    diff = round((displayed_risk - baseline_risk) - sum(rounded_shifts.values()), 1)
     if diff != 0.0:
         max_key = max(rounded_shifts, key=lambda k: abs(rounded_shifts[k]))
         rounded_shifts[max_key] = round(rounded_shifts[max_key] + diff, 1)
@@ -641,7 +648,8 @@ def get_patient_simulation_timeline(patient_id: str):
     shap_all = EXPLAINER(X_all).values
     feat_to_idx = {f: i for i, f in enumerate(FEATURE_COLUMNS)}
     
-    baseline_risk = COHORT_BASELINE_RISK
+    base_log_odds = float(EXPLAINER.expected_value)
+    baseline_risk = round(float(1.0 / (1.0 + np.exp(-base_log_odds)) * 100.0), 1)
     timeline_days = []
     
     for day_idx in range(len(p_feat)):
@@ -653,16 +661,21 @@ def get_patient_simulation_timeline(patient_id: str):
         sv = shap_all[day_idx]
         group_shap = {}
         for g, fl in FACTOR_GROUPS.items():
-            group_shap[g] = sum(sv[feat_to_idx[f]] for f in fl if f in feat_to_idx)
-        tot_shap = sum(group_shap.values())
-        
-        if abs(tot_shap) > 1e-4 and abs(delta) > 0.05:
-            calc_shifts = {g: delta * (v / tot_shap) for g, v in group_shap.items()}
-        else:
-            calc_shifts = {g: 0.0 for g in group_shap}
+            group_shap[g] = float(sum(sv[feat_to_idx[f]] for f in fl if f in feat_to_idx))
             
-        rounded_shifts = {g: round(float(v), 1) for g, v in calc_shifts.items()}
-        diff = round(delta - sum(rounded_shifts.values()), 1)
+        # Sequential probability attribution: sort factors by |phi| descending
+        sorted_groups = sorted(group_shap.items(), key=lambda kv: abs(kv[1]), reverse=True)
+        prev_cum = 0.0
+        shifts = {}
+        for g, phi in sorted_groups:
+            cum = prev_cum + phi
+            p_prev = 1.0 / (1.0 + np.exp(-(base_log_odds + prev_cum)))
+            p_curr = 1.0 / (1.0 + np.exp(-(base_log_odds + cum)))
+            shifts[g] = (p_curr - p_prev) * 100.0
+            prev_cum = cum
+            
+        rounded_shifts = {g: round(float(v), 1) for g, v in shifts.items()}
+        diff = round((disp_risk - baseline_risk) - sum(rounded_shifts.values()), 1)
         if diff != 0.0:
             max_k = max(rounded_shifts, key=lambda k: abs(rounded_shifts[k]))
             rounded_shifts[max_k] = round(rounded_shifts[max_k] + diff, 1)
