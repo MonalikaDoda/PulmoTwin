@@ -36,16 +36,9 @@
 
 - **Developer**: Monalika Doda (Solo Developer)
 - **Institution**: SRM University Delhi-NCR
-- **Team Name**: `<MY TEAM NAME>`
 - **Repository**: [https://github.com/MonalikaDoda/PulmoTwin](https://github.com/MonalikaDoda/PulmoTwin)
-
----
-
-## 2. Institution & Affiliation
-
-- **University**: SRM University Delhi-NCR
 - **Challenge**: Happiest Health Digital Twin Challenge 2026
-- **Clinical Staging Reference**: Uses GOLD/GINA stage categories; proportions are our assumptions (referenced to [GOLD 2024](https://goldcopd.org/2024-gold-report/) and [GINA 2023](https://ginasthma.org/reports/)).
+
 
 ---
 
@@ -62,6 +55,8 @@ PulmoTwin is a proof-of-concept healthcare Digital Twin designed to forecast imp
 The platform provides an editorial-grade clinical dashboard featuring an interactive **3D breathing digital twin lung** (Three.js), **TreeExplainer SHAP attribution**, a **365-day live longitudinal simulation controller**, and a **What-If sensitivity simulator** to explore how model predictions respond to adjusted environmental and adherence inputs.
 
 > **Clinical Disclaimer:** *PulmoTwin is a research prototype and clinical decision-support tool. It is not an automated diagnostic device or a replacement for professional clinical judgment.*
+
+- **Clinical Staging Reference**: Uses GOLD/GINA stage categories; proportions are our assumptions (referenced to [GOLD 2024](https://goldcopd.org/2024-gold-report/) and [GINA 2023](https://ginasthma.org/reports/)).
 
 ---
 
@@ -85,31 +80,7 @@ PulmoTwin explores whether continuous multi-modal data can detect these pre-flar
 
 ## 5. Healthcare Use Case & Workflow
 
-```mermaid
-sequenceDiagram
-    actor Patient as Outpatient COPD / Asthma
-    participant Sensors as Wearable Sensors
-    participant WeatherAPI as Open-Meteo CAMS / ERA5
-    participant Engine as PulmoTwin AI Engine (FastAPI)
-    actor Nurse as Care Coordinator
-    actor Doctor as Pulmonologist
-
-    Sensors->>Engine: Daily SpO2, HR, RR, Sleep, Steps
-    WeatherAPI->>Engine: Delhi CPCB NAQI, Dust, Temp Swing, Pollen
-    Engine->>Engine: Compute personal baseline deviations & 3-day trends
-    Engine->>Engine: XGBoost inference (48h flare probability)
-    alt Impending Flare Detected (Risk at or above Threshold)
-        Engine->>Nurse: Push 48h early warning alert & SHAP drivers
-        Nurse->>Patient: Tele-triage check-in & symptom verification
-        Nurse->>Doctor: Queue order review (Action plan step-up / air purifier)
-        Doctor->>Patient: Prescribe preventative action 48h before crisis
-    else Patient Stable (Risk < Threshold)
-        Engine->>Engine: Continue passive surveillance (0.77 alert days/pt/month)
-    end
-```
-
-
----
+![Clinical Workflow](docs/PulmoTwin_Workflow.png)
 
 ## 6. Technical Stack & Architecture
 
