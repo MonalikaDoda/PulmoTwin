@@ -35,14 +35,7 @@
 
 - **Developer**: Monalika Doda (Solo Developer)
 - **Institution**: SRM University Delhi-NCR
-- **Team Name**: `<MY TEAM NAME>`
 - **Repository**: [https://github.com/MonalikaDoda/PulmoTwin](https://github.com/MonalikaDoda/PulmoTwin)
-
----
-
-## 2. Institution & Affiliation
-
-- **University**: SRM University Delhi-NCR
 - **Challenge**: Happiest Health Digital Twin Challenge 2026
 - **Clinical Guideline Reference**: Built in reference to the Global Initiative for Chronic Obstructive Lung Disease ([GOLD 2024](https://goldcopd.org/2024-gold-report/)) and the Global Initiative for Asthma ([GINA 2023](https://ginasthma.org/reports/)).
 
