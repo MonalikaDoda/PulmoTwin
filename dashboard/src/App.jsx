@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import Header from './components/Header'
 import PatientHeader from './components/PatientHeader'
 import ThreeLungViewer from './components/ThreeLungViewer'
+import VitalTiles from './components/VitalTiles'
 import SimulationControls from './components/SimulationControls'
 import WhatMovedTheEstimate from './components/WhatMovedTheEstimate'
 import VitalsTimeline from './components/VitalsTimeline'
@@ -335,6 +336,15 @@ export default function App() {
               condition={patientProfile?.condition || 'COPD'}
               simulationDay={currentDay}
               simulationDate={activeDate}
+            />
+          </div>
+
+          {/* Under Hero: 5 Vital Tiles with Baseline Delta & 7-Day Sparkline */}
+          <div style={{ marginBottom: 38 }}>
+            <VitalTiles
+              currentTelemetry={activeTelemetryForBars}
+              patientBaselines={patientProfile || {}}
+              recentHistory={historyData.filter(d => (d.day_number || 0) <= currentDay)}
             />
           </div>
 

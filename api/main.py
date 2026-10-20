@@ -359,19 +359,19 @@ def get_patient_shap_explanation(patient_id: str, day_number: Optional[int] = Qu
         if g_id == "spo2":
             val_str = f"{row_dict.get('spo2', 95.0):.1f}% ({row_dict.get('spo2_dev_baseline', 0):+.1f}%)"
         elif g_id == "hr":
-            val_str = f"{row_dict.get('resting_heart_rate', 75):.0f} bpm ({row_dict.get('hr_dev_baseline', 0):+.1f})"
+            val_str = f"{row_dict.get('resting_heart_rate', 75.0):.1f} bpm ({row_dict.get('hr_dev_baseline', 0):+.1f})"
         elif g_id == "rr":
-            val_str = f"{row_dict.get('respiratory_rate', 16):.0f} rpm ({row_dict.get('rr_dev_baseline', 0):+.1f})"
+            val_str = f"{row_dict.get('respiratory_rate', 16.0):.1f} rpm ({row_dict.get('rr_dev_baseline', 0):+.1f})"
         elif g_id == "sleep":
             val_str = f"{row_dict.get('sleep_hours', 7.0):.1f} hrs ({row_dict.get('sleep_dev_baseline', 0):+.1f}h)"
         elif g_id == "steps":
             val_str = f"{int(row_dict.get('steps', 5000)):,} steps ({int(row_dict.get('steps_ratio_baseline', 1.0)*100)}%)"
         elif g_id == "aqi":
-            val_str = f"{row_dict.get('aqi_cpcb_mean', 120):.0f} AQI"
+            val_str = f"{row_dict.get('aqi_cpcb_mean', 120.0):.1f} NAQI"
         elif g_id == "dust":
-            val_str = f"{row_dict.get('dust_mean', 30):.0f} µg/m³"
+            val_str = f"{row_dict.get('dust_mean', 30.0):.1f} µg/m³"
         elif g_id == "temp_swing":
-            val_str = f"{row_dict.get('temp_swing_diurnal', 10):.1f}°C swing"
+            val_str = f"{row_dict.get('temp_swing_diurnal', 10.0):.1f}°C swing"
         elif g_id == "adherence":
             val_str = f"{int(row_dict.get('med_adherence_rolling_7d', row_dict.get('baseline_adherence', 0.8))*100)}%"
         else:
@@ -675,19 +675,19 @@ def get_patient_simulation_timeline(patient_id: str):
             if g_id == "spo2":
                 v_str = f"{row.get('spo2', 95.0):.1f}% ({row.get('spo2_dev_baseline', 0):+.1f}%)"
             elif g_id == "hr":
-                v_str = f"{row.get('resting_heart_rate', 75):.0f} bpm ({row.get('hr_dev_baseline', 0):+.1f})"
+                v_str = f"{row.get('resting_heart_rate', 75.0):.1f} bpm ({row.get('hr_dev_baseline', 0):+.1f})"
             elif g_id == "rr":
-                v_str = f"{row.get('respiratory_rate', 16):.0f} rpm ({row.get('rr_dev_baseline', 0):+.1f})"
+                v_str = f"{row.get('respiratory_rate', 16.0):.1f} rpm ({row.get('rr_dev_baseline', 0):+.1f})"
             elif g_id == "sleep":
                 v_str = f"{row.get('sleep_hours', 7.0):.1f} hrs ({row.get('sleep_dev_baseline', 0):+.1f}h)"
             elif g_id == "steps":
                 v_str = f"{int(row.get('steps', 5000)):,} steps ({int(row.get('steps_ratio_baseline', 1.0)*100)}%)"
             elif g_id == "aqi":
-                v_str = f"{row.get('aqi_cpcb_mean', 120):.0f} AQI"
+                v_str = f"{row.get('aqi_cpcb_mean', 120.0):.1f} NAQI"
             elif g_id == "dust":
-                v_str = f"{row.get('dust_mean', 30):.0f} µg/m³"
+                v_str = f"{row.get('dust_mean', 30.0):.1f} µg/m³"
             elif g_id == "temp_swing":
-                v_str = f"{row.get('temp_swing_diurnal', 10):.1f}°C swing"
+                v_str = f"{row.get('temp_swing_diurnal', 10.0):.1f}°C swing"
             elif g_id == "adherence":
                 v_str = f"{int(row.get('med_adherence_rolling_7d', row.get('baseline_adherence', 0.8))*100)}%"
             else:

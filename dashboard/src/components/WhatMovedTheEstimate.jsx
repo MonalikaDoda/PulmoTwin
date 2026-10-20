@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react'
-import { Info, CheckCircle2, TrendingUp, TrendingDown, HelpCircle } from 'lucide-react'
+import React, { useMemo, useState } from 'react'
+import { Info, CheckCircle2, ChevronDown, ChevronUp } from 'lucide-react'
 
 export default function WhatMovedTheEstimate({
   shapData,
@@ -7,65 +7,74 @@ export default function WhatMovedTheEstimate({
   currentTelemetry,
   riskScore = 0
 }) {
+  const [showAllFactors, setShowAllFactors] = useState(false)
+
   // Use model's average predicted risk as baseline (cohort reference prior)
   const baselineRisk = shapData?.baseline_risk !== undefined ? shapData.baseline_risk : 3.6
   const displayedRisk = shapData?.displayed_risk !== undefined ? shapData.displayed_risk : riskScore
+
+  // Format values safely to 1 decimal digit
+  const formatVal = (v, suffix = '') => {
+    if (v === null || v === undefined) return '—'
+    const num = Number(v)
+    return isNaN(num) ? `${v}` : `${num.toFixed(1)}${suffix}`
+  }
 
   // The 9 specified factors with fallback defaults
   const defaultFactorDefinitions = [
     {
       id: 'spo2',
       name: 'SpO2 vs personal baseline',
-      val: currentTelemetry?.spo2 ? `${currentTelemetry.spo2}% (${(currentTelemetry.spo2 - (patientProfile?.baseline_spo2 || 95)).toFixed(1)}%)` : '-1.8%',
+      val: currentTelemetry?.spo2 ? `${formatVal(currentTelemetry.spo2)}% (${formatVal(Number(currentTelemetry.spo2) - Number(patientProfile?.baseline_spo2 || 95), '%')})` : '-1.8%',
       defaultImpact: currentTelemetry?.spo2 < (patientProfile?.baseline_spo2 || 95) ? +12.4 : -2.1,
       isHazard: currentTelemetry?.spo2 < (patientProfile?.baseline_spo2 || 95)
     },
     {
       id: 'hr',
       name: 'Resting Heart Rate',
-      val: currentTelemetry?.resting_heart_rate ? `${currentTelemetry.resting_heart_rate} bpm` : '82 bpm',
+      val: currentTelemetry?.resting_heart_rate ? `${formatVal(currentTelemetry.resting_heart_rate)} bpm` : '82.0 bpm',
       defaultImpact: currentTelemetry?.resting_heart_rate > 80 ? +4.8 : -1.5,
       isHazard: currentTelemetry?.resting_heart_rate > 80
     },
     {
       id: 'rr',
       name: 'Respiratory Rate',
-      val: currentTelemetry?.respiratory_rate ? `${currentTelemetry.respiratory_rate} rpm` : '18 rpm',
+      val: currentTelemetry?.respiratory_rate ? `${formatVal(currentTelemetry.respiratory_rate)} rpm` : '18.0 rpm',
       defaultImpact: currentTelemetry?.respiratory_rate > 18 ? +8.2 : -1.8,
       isHazard: currentTelemetry?.respiratory_rate > 18
     },
     {
       id: 'sleep',
       name: 'Nocturnal Sleep Duration',
-      val: currentTelemetry?.sleep_hours ? `${currentTelemetry.sleep_hours} hrs` : '5.8 hrs',
+      val: currentTelemetry?.sleep_hours ? `${formatVal(currentTelemetry.sleep_hours)} hrs` : '5.8 hrs',
       defaultImpact: currentTelemetry?.sleep_hours < 6.5 ? +6.5 : -1.2,
       isHazard: currentTelemetry?.sleep_hours < 6.5
     },
     {
       id: 'steps',
       name: 'Daily Mobility (Steps)',
-      val: currentTelemetry?.steps ? `${currentTelemetry.steps.toLocaleString()} steps` : '3,200 steps',
+      val: currentTelemetry?.steps ? `${Math.round(Number(currentTelemetry.steps)).toLocaleString()} steps` : '3,200 steps',
       defaultImpact: currentTelemetry?.steps < 4000 ? +14.6 : -3.2,
       isHazard: currentTelemetry?.steps < 4000
     },
     {
       id: 'aqi',
-      name: 'Copernicus CAMS AQI',
-      val: currentTelemetry?.aqi_cpcb_mean ? `${currentTelemetry.aqi_cpcb_mean} AQI` : '240 AQI',
+      name: 'Copernicus CAMS NAQI',
+      val: currentTelemetry?.aqi_cpcb_mean ? `${formatVal(currentTelemetry.aqi_cpcb_mean)} NAQI` : '240.0 NAQI',
       defaultImpact: currentTelemetry?.aqi_cpcb_mean > 150 ? +5.2 : -0.8,
       isHazard: currentTelemetry?.aqi_cpcb_mean > 150
     },
     {
       id: 'dust',
       name: 'Atmospheric Dust',
-      val: currentTelemetry?.dust_mean ? `${currentTelemetry.dust_mean} µg/m³` : '45 µg/m³',
+      val: currentTelemetry?.dust_mean ? `${formatVal(currentTelemetry.dust_mean)} µg/m³` : '45.0 µg/m³',
       defaultImpact: currentTelemetry?.dust_mean > 50 ? +2.1 : -0.4,
       isHazard: currentTelemetry?.dust_mean > 50
     },
     {
       id: 'temp_swing',
       name: 'Weather & pollen',
-      val: currentTelemetry?.temp_swing_diurnal ? `${currentTelemetry.temp_swing_diurnal}°C swing` : '12.4°C swing',
+      val: currentTelemetry?.temp_swing_diurnal ? `${formatVal(currentTelemetry.temp_swing_diurnal)}°C swing` : '12.4°C swing',
       defaultImpact: currentTelemetry?.temp_swing_diurnal > 11 ? +1.8 : -0.5,
       isHazard: currentTelemetry?.temp_swing_diurnal > 11
     },
@@ -90,7 +99,7 @@ export default function WhatMovedTheEstimate({
       }))
     }
 
-    // If fallback, reconcile defaultImpacts so Baseline + sum(impacts) === displayedRisk
+    // Fallback scaling to ensure Baseline + sum(impacts) === displayedRisk
     const delta = displayedRisk - baselineRisk
     const defaultSum = defaultFactorDefinitions.reduce((acc, f) => acc + f.defaultImpact, 0)
     const factorScale = Math.abs(defaultSum) > 1e-4 && Math.abs(delta) > 0.05 ? delta / defaultSum : 0
@@ -106,14 +115,18 @@ export default function WhatMovedTheEstimate({
     })
   }, [shapData, displayedRisk, baselineRisk, currentTelemetry, patientProfile])
 
-  // Total sum of bars
+  // Sort factors by absolute impact descending
+  const sortedFactors = useMemo(() => {
+    return [...factorRows].sort((a, b) => Math.abs(b.impact) - Math.abs(a.impact))
+  }, [factorRows])
+
+  // Top 5 vs All Factors
+  const visibleFactors = showAllFactors ? sortedFactors : sortedFactors.slice(0, 5)
+
+  // Total sum of ALL bars (always calculated over all 9 factors so arithmetic is 100% exact)
   const sumBars = useMemo(() => {
     return parseFloat(factorRows.reduce((acc, r) => acc + r.impact, 0).toFixed(1))
   }, [factorRows])
-
-  // Reconciled total
-  const calculatedRisk = parseFloat((baselineRisk + sumBars).toFixed(1))
-  const isExactMatch = Math.abs(calculatedRisk - displayedRisk) <= 0.15
 
   // Scale maximum impact for visual bar width
   const maxAbsImpact = Math.max(12, ...factorRows.map((r) => Math.abs(r.impact)))
@@ -122,7 +135,7 @@ export default function WhatMovedTheEstimate({
     <div className="editorial-card" style={{ padding: '24px 28px', marginBottom: 20 }}>
       {/* Title & How to Read This */}
       <div style={{ marginBottom: 18 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4, flexWrap: 'wrap', gap: 10 }}>
           <h3 className="heading-serif" style={{ fontSize: 18, margin: 0 }}>
             What Moved the Estimate
           </h3>
@@ -140,7 +153,7 @@ export default function WhatMovedTheEstimate({
             }}
           >
             <CheckCircle2 size={12} color="var(--teal-mid)" />
-            Baseline + Bars = Displayed Risk
+            Baseline + Bars = Displayed Risk ({baselineRisk.toFixed(1)}% {sumBars >= 0 ? `+ ${sumBars.toFixed(1)}%` : `- ${Math.abs(sumBars).toFixed(1)}%`} = {displayedRisk.toFixed(1)}%)
           </span>
         </div>
 
@@ -156,7 +169,7 @@ export default function WhatMovedTheEstimate({
           }}
         >
           <Info size={13} color="var(--teal-mid)" />
-          How to read this: Horizontal bars represent the percentage point shift from the cohort reference prior ({baselineRisk}%) to this patient's forecasted 48-hour risk ({displayedRisk}%).
+          How to read this: Factors are sorted by magnitude of clinical influence. Horizontal bars show percentage point shifts from cohort reference baseline ({baselineRisk.toFixed(1)}%) to this patient's 48-hour forecast ({displayedRisk.toFixed(1)}%).
         </p>
       </div>
 
@@ -164,12 +177,12 @@ export default function WhatMovedTheEstimate({
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: '220px 1fr 90px',
+          gridTemplateColumns: '240px 1fr 90px',
           fontSize: 11,
           color: 'var(--text-light)',
           borderBottom: '1px solid var(--border-subtle)',
           paddingBottom: 6,
-          marginBottom: 8
+          marginBottom: 10
         }}
       >
         <span style={{ fontWeight: 500, letterSpacing: '0.01em' }}>Clinical factor</span>
@@ -178,12 +191,12 @@ export default function WhatMovedTheEstimate({
           <span style={{ fontWeight: 600, color: 'var(--text-muted)' }}>0 pp</span>
           <span>Elevates risk (hazard) →</span>
         </div>
-        <span style={{ textAlign: 'right', fontWeight: 500, letterSpacing: '0.01em' }}>Shift</span>
+        <span style={{ textAlign: 'right', fontWeight: 500, letterSpacing: '0.01em' }}>Attribution</span>
       </div>
 
       {/* Factor Diverging Horizontal Bars */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
-        {factorRows.map((row) => {
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+        {visibleFactors.map((row) => {
           const widthPct = Math.min(100, (Math.abs(row.impact) / maxAbsImpact) * 50)
           const isHazard = row.impact > 0
 
@@ -192,7 +205,7 @@ export default function WhatMovedTheEstimate({
               key={row.id}
               style={{
                 display: 'grid',
-                gridTemplateColumns: '220px 1fr 90px',
+                gridTemplateColumns: '240px 1fr 90px',
                 alignItems: 'center',
                 fontSize: 12.5
               }}
@@ -204,7 +217,7 @@ export default function WhatMovedTheEstimate({
                 </div>
                 {row.val && (
                   <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>
-                    Value: {row.val}
+                    Reading: {row.val}
                   </div>
                 )}
               </div>
@@ -238,7 +251,7 @@ export default function WhatMovedTheEstimate({
                     style={{
                       position: 'absolute',
                       right: '50%',
-                      height: 10,
+                      height: 11,
                       width: `${widthPct}%`,
                       background: 'var(--teal-mid)',
                       borderRadius: '3px 0 0 3px',
@@ -253,7 +266,7 @@ export default function WhatMovedTheEstimate({
                     style={{
                       position: 'absolute',
                       left: '50%',
-                      height: 10,
+                      height: 11,
                       width: `${widthPct}%`,
                       background: 'var(--risk-coral)',
                       borderRadius: '0 3px 3px 0',
@@ -279,13 +292,46 @@ export default function WhatMovedTheEstimate({
         })}
       </div>
 
+      {/* Toggle View All Factors Button */}
+      {sortedFactors.length > 5 && (
+        <div style={{ textAlign: 'center', marginTop: 14 }}>
+          <button
+            onClick={() => setShowAllFactors(!showAllFactors)}
+            style={{
+              background: 'transparent',
+              border: '1px solid var(--border-subtle)',
+              borderRadius: 20,
+              padding: '5px 14px',
+              fontSize: 11.5,
+              fontWeight: 500,
+              color: 'var(--teal-deep)',
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 5,
+              transition: 'all 0.2s ease'
+            }}
+          >
+            {showAllFactors ? (
+              <>
+                <ChevronUp size={13} /> Show top 5 factors only
+              </>
+            ) : (
+              <>
+                <ChevronDown size={13} /> Show all {sortedFactors.length} factors ({sortedFactors.length - 5} more)
+              </>
+            )}
+          </button>
+        </div>
+      )}
+
       {/* Mathematical Reconciliation Summary Banner */}
       <div
         style={{
           marginTop: 18,
-          padding: '10px 14px',
+          padding: '10px 16px',
           background: 'var(--bg-warm)',
-          borderRadius: 6,
+          borderRadius: 8,
           border: '1px solid var(--border-subtle)',
           display: 'flex',
           alignItems: 'center',
@@ -298,7 +344,7 @@ export default function WhatMovedTheEstimate({
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
           <span>
-            Cohort Baseline: <strong>{baselineRisk.toFixed(1)}%</strong>
+            Cohort Prior: <strong>{baselineRisk.toFixed(1)}%</strong>
           </span>
           <span style={{ color: 'var(--text-light)' }}>+</span>
           <span>
@@ -308,13 +354,13 @@ export default function WhatMovedTheEstimate({
           </span>
           <span style={{ color: 'var(--text-light)' }}>=</span>
           <span>
-            Patient 48h Risk: <strong style={{ color: 'var(--teal-deep)' }}>{displayedRisk.toFixed(1)}%</strong>
+            Forecasted 48h Risk: <strong style={{ color: 'var(--teal-deep)' }}>{displayedRisk.toFixed(1)}%</strong>
           </span>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: 'var(--text-muted)' }}>
           <CheckCircle2 size={13} color="var(--teal-mid)" />
-          <span>TreeExplainer Log-Odds Sigmoid Proportions</span>
+          <span>TreeExplainer Sigmoid Attribution</span>
         </div>
       </div>
     </div>

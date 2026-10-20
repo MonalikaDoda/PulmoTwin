@@ -81,22 +81,27 @@ export default function PatientHeader({ patient, riskInfo }) {
         }}>
           <div>
             <span style={{ color: 'var(--text-light)', display: 'block' }}>Base SpO2</span>
-            <strong style={{ color: 'var(--text-main)', fontSize: 13 }}>{patient.baseline_spo2}%</strong>
+            <strong style={{ color: 'var(--text-main)', fontSize: 13 }}>{Number(patient.baseline_spo2 || 95).toFixed(1)}%</strong>
           </div>
           <div style={{ width: 1, background: 'var(--border-medium)' }} />
           <div>
             <span style={{ color: 'var(--text-light)', display: 'block' }}>Base HR</span>
-            <strong style={{ color: 'var(--text-main)', fontSize: 13 }}>{patient.baseline_heart_rate} bpm</strong>
+            <strong style={{ color: 'var(--text-main)', fontSize: 13 }}>{Number(patient.baseline_heart_rate || 75).toFixed(1)} bpm</strong>
           </div>
           <div style={{ width: 1, background: 'var(--border-medium)' }} />
           <div>
             <span style={{ color: 'var(--text-light)', display: 'block' }}>Base RR</span>
-            <strong style={{ color: 'var(--text-main)', fontSize: 13 }}>{patient.baseline_resp_rate} rpm</strong>
+            <strong style={{ color: 'var(--text-main)', fontSize: 13 }}>{Number(patient.baseline_resp_rate || 16).toFixed(1)} rpm</strong>
           </div>
           <div style={{ width: 1, background: 'var(--border-medium)' }} />
           <div>
             <span style={{ color: 'var(--text-light)', display: 'block' }}>Base Sleep</span>
-            <strong style={{ color: 'var(--text-main)', fontSize: 13 }}>{patient.baseline_sleep_hours}h</strong>
+            <strong style={{ color: 'var(--text-main)', fontSize: 13 }}>{Number(patient.baseline_sleep_hours || 7).toFixed(1)}h</strong>
+          </div>
+          <div style={{ width: 1, background: 'var(--border-medium)' }} />
+          <div>
+            <span style={{ color: 'var(--text-light)', display: 'block' }}>Base Steps</span>
+            <strong style={{ color: 'var(--text-main)', fontSize: 13 }}>{Math.round(Number(patient.baseline_steps || 5000)).toLocaleString()}</strong>
           </div>
         </div>
 

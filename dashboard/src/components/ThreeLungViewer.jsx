@@ -21,6 +21,43 @@ export default function ThreeLungViewer({
   const [use3D, setUse3D] = useState(true)
   const [modelLoaded, setModelLoaded] = useState(false)
 
+  // Smoothly animated risk score for playback transitions
+  const [animatedScore, setAnimatedScore] = useState(riskScore)
+  const currentScoreRef = useRef(riskScore)
+
+  useEffect(() => {
+    let frameId
+    const start = currentScoreRef.current
+    const target = riskScore
+    if (Math.abs(start - target) < 0.05) {
+      currentScoreRef.current = target
+      setAnimatedScore(target)
+      return
+    }
+
+    const startTime = performance.now()
+    const duration = 240
+
+    const animate = (now) => {
+      const elapsed = now - startTime
+      const progress = Math.min(1, elapsed / duration)
+      const ease = 1 - Math.pow(1 - progress, 3)
+      const current = start + (target - start) * ease
+      currentScoreRef.current = current
+      setAnimatedScore(current)
+
+      if (progress < 1) {
+        frameId = requestAnimationFrame(animate)
+      } else {
+        currentScoreRef.current = target
+        setAnimatedScore(target)
+      }
+    }
+
+    frameId = requestAnimationFrame(animate)
+    return () => cancelAnimationFrame(frameId)
+  }, [riskScore])
+
   // Breathing cycle duration in seconds: 60 / respiratory_rate
   const rr = Math.max(10, Math.min(36, respiratoryRate || 16))
   const breathDuration = (60 / rr).toFixed(2)
@@ -533,7 +570,9 @@ export default function ThreeLungViewer({
               display: 'flex',
               alignItems: 'baseline',
               gap: 16,
-              marginBottom: 8
+              marginBottom: 8,
+              animation: riskScore >= 50 ? 'alertPulseGentle 2.4s ease-in-out infinite' : 'none',
+              transformOrigin: 'left center'
             }}
           >
             <span
@@ -546,7 +585,7 @@ export default function ThreeLungViewer({
                 letterSpacing: '-0.04em'
               }}
             >
-              {riskScore.toFixed(1)}
+              {animatedScore.toFixed(1)}
               <span style={{ fontSize: 40, fontWeight: 400, color: 'var(--text-light)', marginLeft: 3 }}>
                 %
               </span>

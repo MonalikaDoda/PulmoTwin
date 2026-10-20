@@ -4,22 +4,23 @@ import { Activity, BookOpen, AlertCircle, ShieldCheck } from 'lucide-react'
 export default function Header({ onOpenDrawer, isBackendOnline }) {
   return (
     <header style={{
-      background: 'var(--bg-surface)',
-      borderBottom: '1px solid var(--border-subtle)',
+      background: '#ffffff',
+      borderBottom: '1px solid #e2e8f0',
+      boxShadow: '0 2px 10px rgba(0, 0, 0, 0.04)',
       position: 'sticky',
       top: 0,
-      zIndex: 40
+      zIndex: 100
     }}>
       {/* Top Disclaimer Banner */}
       <div style={{
-        background: 'var(--bg-subtle)',
-        borderBottom: '1px solid var(--border-subtle)',
-        padding: '5px 24px',
+        background: '#f8fafc',
+        borderBottom: '1px solid #e2e8f0',
+        padding: '6px 24px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         gap: 8,
-        fontSize: 11.5,
+        fontSize: 12,
         color: 'var(--text-muted)',
         letterSpacing: '0.01em'
       }}>

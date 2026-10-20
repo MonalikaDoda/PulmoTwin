@@ -100,7 +100,7 @@ export default function DelhiMap({ stations = [], selectedPatient, dayNumber = n
                     fontWeight={600}
                     fill="var(--text-main)"
                   >
-                    {st.station}: {st.cpcb_aqi}
+                    {st.station}: {Number(st.cpcb_aqi).toFixed(1)}
                   </text>
                 </g>
               )
@@ -159,10 +159,10 @@ export default function DelhiMap({ stations = [], selectedPatient, dayNumber = n
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 600 }}>
                 <span>{st.station}</span>
-                <span style={{ color: getAqiColor(st.cpcb_aqi) }}>{st.cpcb_aqi}</span>
+                <span style={{ color: getAqiColor(st.cpcb_aqi) }}>{Number(st.cpcb_aqi).toFixed(1)}</span>
               </div>
               <div style={{ color: 'var(--text-light)', fontSize: 10 }}>
-                PM2.5: {st.pm2_5} • {st.temperature_c}°C
+                PM2.5: {Number(st.pm2_5).toFixed(1)} • {Number(st.temperature_c).toFixed(1)}°C
               </div>
             </div>
           ))}

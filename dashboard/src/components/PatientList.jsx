@@ -139,7 +139,7 @@ export default function PatientList({ patients = [], selectedPatientId, onSelect
                   fontWeight: 600,
                   color: isHigh ? 'var(--risk-coral)' : 'var(--teal-deep)'
                 }}>
-                  {p.risk_score.toFixed(0)}%
+                  {p.risk_score.toFixed(1)}%
                 </span>
                 <ChevronRight size={13} color={isSelected ? 'var(--teal-deep)' : 'var(--border-medium)'} />
               </div>
