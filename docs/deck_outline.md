@@ -1,57 +1,90 @@
 # PulmoTwin: Pitch Deck Outline
 ### Happiest Health Digital Twin Challenge 2026
 
-**Title:** PulmoTwin — 48-Hour Outpatient Respiratory Digital Twin  
-**Tagline:** Preventing COPD and Asthma Hospitalizations in High-Pollution Megacities  
+**Project:** PulmoTwin — 48-Hour Outpatient Respiratory Digital Twin  
+**Author:** Monalika Doda (Solo Developer)  
+**Affiliation:** SRM University Delhi-NCR  
+**Team Name:** `<MY TEAM NAME>`  
+**Repository:** [https://github.com/MonalikaDoda/PulmoTwin](https://github.com/MonalikaDoda/PulmoTwin)  
+**License:** MIT License (Copyright (c) 2026 Monalika Doda)  
 
 ---
 
 ### Slide 1: Executive Title & Vision
-- **Header:** PulmoTwin: The Predictive Digital Twin for Respiratory Health
-- **Subtitle:** Closing the 48-hour gap before emergency admission in Delhi NCR
+- **Header:** PulmoTwin: 48-Hour Outpatient Respiratory Digital Twin
+- **Subtitle:** Predictive Early Warning for COPD and Asthma Flare-Ups in Delhi NCR
 - **Core Message:** Shifting chronic pulmonary care from reactive emergency salvage to proactive outpatient intervention.
 
-### Slide 2: The Clinical Crisis in Delhi NCR
-- **Stat 1:** Over 55 million COPD and Asthma patients in India.
-- **Stat 2:** Emergency department exacerbation visits surge 300% during Delhi's winter smog and post-monsoon crop-burning season.
-- **The Core Problem:** By the time a patient feels unbearable dyspnea, airway edema and alveolar gas exchange failure have already occurred. The golden window for oral steroids and inhaler adjustment was 48 hours earlier.
+### Slide 2: Clinical Problem & Healthcare Context
+- **Clinical Reality:** Chronic respiratory diseases are a major driver of avoidable hospitalization in India (Reference: Lancet Global Health / ICMR State-Level Disease Burden Initiative, 2018).
+- **Compound Environmental Exposure:** Delhi NCR experiences severe seasonal air quality episodes (CPCB NAQI > 300), extreme diurnal thermal swings, and mineral dust.
+- **The Critical Window:** Airway inflammation develops 48–72 hours prior to acute decompensation (SpO2 drift, mild compensatory tachycardia, sleep disturbance, and mobility decline).
+- **The Gap:** Conventional care is reactive—treating patients only after severe respiratory distress forces an emergency room visit.
 
-### Slide 3: The Solution — Multi-Modal Digital Twin
-- **Concept:** Continuous digital mirror of the patient's respiratory physiology.
-- **Three Core Pillars:**
-  1. *Individualized Wearable Telemetry:* SpO2, resting HR, respiratory rate, nocturnal sleep, daily steps.
-  2. *Static Clinical Phenotype:* GOLD/GINA staging, past flare-ups, smoking pack-years, baseline inhaler compliance.
-  3. *Hyper-Local Environmental Intelligence:* Copernicus CAMS AQI, atmospheric dust, cold shock, and diurnal temperature swings across Delhi NCR.
+### Slide 3: The Multi-Modal Digital Twin Solution
+- **Core Principle:** In silico patient model continuously tracking individual physiological baselines.
+- **Three Data Streams:**
+  1. *Individualized Wearable Telemetry:* SpO2, resting HR, respiratory rate, sleep hours, daily steps (synthetic 365-day time-series).
+  2. *Patient Phenotypes:* GOLD/GINA staging, smoking pack-years, baseline inhaler adherence (synthetic EHR cohort).
+  3. *Hyper-Local Environmental Intelligence:* Real modelled CAMS air quality (converted to Indian CPCB NAQI) and ERA5 weather from Open-Meteo (CC BY 4.0).
 
-### Slide 4: The 48-Hour Prodrome: What the Twin Sees
-- **SpO2:** Gradual prodromal drop of 2.0%–3.5% below individual baseline.
-- **Heart Rate:** Resting tachycardia rise of +8 to +12 bpm.
-- **Tachypnea:** Respiratory rate elevation of +3 to +6 breaths/min.
-- **Functional Mobility:** Daily step counts drop 35%–50% due to exertional fatigue.
-- **Environmental Catalyst:** Rising 72h CAMS NAQI and sudden diurnal thermal swings trigger the acute cascade.
+### Slide 4: Data Engineering & Grounded Provenance
+- **Synthetic Cohort (N=500 patients):** Clinical COPD/asthma generator adhering to GOLD 2024 and GINA 2023 rules.
+- **Synthetic Telemetry (182,500 patient-days):** 365 daily records with simulated pre-flare drift and noise. Zero real patient health information (PHI).
+- **Real Modelled Atmospheric Data:** Hourly Open-Meteo CAMS data and daily ERA5 weather reanalysis.
+- **Illustrative Pollen Curve:** Mathematical seasonal curve placed near seasons in Delhi pollen calendars; not fitted to measured aerobiological data.
 
-### Slide 5: Multi-Modal AI Engine & Validation
-- **Model:** Calibrated XGBoost with patient-level stratified grouping (zero leakage across 500 patients / 182,500 patient-days).
-- **Ablation Study:** 
-  - Vitals Only: 96.3% Recall, 64.7% Precision
-  - Full Multi-Modal (with CAMS AQI + Weather/Dust/Pollen): **97.5% Recall, 67.2% Precision, 0.9995 ROC-AUC**.
-- **Clinical Workload (Alert Fatigue):** Only **0.20 alerts per patient per month** (~2.35 alerts/patient/year), making it feasible for hospital nurse navigators.
-- **Sensor Dropout Resilience:** Graceful degradation even with 20% wearable data dropout.
+### Slide 5: Multi-Modal AI Engine & Real Benchmarks
+- **Model:** Calibrated XGBoost with patient-level GroupShuffleSplit (400 train / 100 test patients; 0 data leakage).
+- **Ablation Study (from model/comprehensive_metrics.json):**
+  - M1 (Vitals Only, 17 features): ROC-AUC 0.9982 | PR-AUC 0.9042 | Recall 94.09% | Precision 75.11% | F1 0.8353
+  - M2 (Vitals + EHR, 27 features): ROC-AUC 0.9981 | PR-AUC 0.9020 | Recall 93.82% | Precision 76.03% | F1 0.8400
+  - M3 (Vitals + EHR + CAMS AQI, 35 features): ROC-AUC 0.9982 | PR-AUC 0.9068 | Recall 93.82% | Precision 75.62% | F1 0.8374
+  - M4 (Full Multi-Modal, 46 features): ROC-AUC 0.9982 | PR-AUC 0.9078 | Recall 93.41% | Precision 75.63% | F1 0.8358
+- **Honest Ablation Finding:** On this synthetic dataset, continuous vitals (M1) already yield PR-AUC 0.9042. Adding environmental features (M4) provides virtually negligible gain (+0.0036 PR-AUC, +0.0005 F1), showing that vital sign drift accounts for nearly all predictive signal in the generator.
 
-### Slide 6: Explainable AI & What-If Simulation
-- **SHAP TreeExplainer:** Deconstructs every alert into the top 3 physiological and environmental drivers.
-- **Counterfactual Simulator:** Clinicians and patients can slide AQI and inhaler adherence to see immediate risk reduction (e.g. -64% risk drop with HEPA air filtration and strict inhaler compliance).
+### Slide 6: Warning Lead-Time & Sensor Dropout Robustness
+- **Lead-Time Analysis (from model/lead_time_analysis.json):**
+  - 48h Ahead Warning: 100.0% sensitivity on synthetic test labels (372 test flare events).
+  - 36h Ahead Warning: 100.0% sensitivity.
+  - 24h Ahead Warning: 100.0% sensitivity.
+  - 12h Ahead Warning: 95.4% sensitivity.
+  - Clinical Workload: 0.77 alerts per patient per month (~9.19 alerts/patient/year).
+  - Grouped Episodes: Consecutive alert days clustered into single clinical episodes.
+- **Wearable Sensor Random Dropout Test:**
+  - 0% Missing: ROC-AUC 0.9982 | Recall 93.41% | Precision 75.63% | F1 0.8358
+  - 10% Missing: ROC-AUC 0.9963 | Recall 78.76% | Precision 75.32% | F1 0.7700
+  - 20% Missing: ROC-AUC 0.9925 | Recall 61.02% | Precision 78.68% | F1 0.6874
+  - 30% Missing: ROC-AUC 0.9861 | Recall 37.90% | Precision 78.55% | F1 0.5113
 
-### Slide 7: Hospital-Grade Clinical Dashboard
-- Clean, clinical teal/gray UI with radial 0-100 risk gauge, 7d/30d/365d vitals timeline, interactive Delhi NCR map with station monitoring, doctor action orders, and alert history.
-- Built-in disclaimer: Clinical decision-support prototype.
+### Slide 7: Explainability & What-If Sensitivity Simulator
+- **SHAP TreeExplainer:** Converts log-odds to probability percentage points. Reconciled: Cohort Reference Baseline (3.6%) + Bars = Displayed Risk%.
+- **9 Clinical Factors:** SpO2 vs baseline, resting HR, respiratory rate, sleep, steps, CAMS NAQI, dust, weather, adherence.
+- **Counterfactual What-If Simulator:** Interactive sliders (indoor AQI reduction 0 to -150, adherence boost +0 to +50%, thermal swing dampening 0 to -8°C).
+- **Scientific Clarity:** Shows model sensitivity on synthetic data; does not claim a proven clinical intervention effect.
 
-### Slide 8: Health Economics & Clinical Impact
-- **Cost Reduction:** Averting 1 COPD ICU admission saves ₹1,50,000–₹3,00,000 ($1,800–$3,600) per patient.
-- **Bed Capacity:** Frees emergency pulmonary beds during peak winter smog seasons.
-- **Patient Quality of Life:** Preserves lung function by preventing recurrent inflammatory injury.
+### Slide 8: Editorial-Clinical Dashboard UI
+- **Light/Glass Surface:** Calm off-white theme, deep teal accent, serif headings, light/glass cards.
+- **3D Animated Lung Twin:** Three.js model breathing at patient's respiratory rate, dynamically tinted by risk tier.
+- **5 Vital Tiles:** SpO2, HR, RR, Sleep, Steps with 7-day sparklines and baseline deviation indicators.
+- **365-Day Live Simulation Engine:** Play/Pause/Speed controls, date scrubber, and "Jump to Next Alert".
+- **Light/Glass Longitudinal Telemetry:** Deep teal SpO2, crimson HR, amber CAMS NAQI, and steps bars.
+- **Delhi GIS Map:** 5 ambient stations with patient pinned and local micro-climate readings.
+- **Error Boundary:** Fault-tolerant architecture preventing blank screen crashes.
 
-### Slide 9: Road to Clinical Translation & Ethics
-- Synthetic cohort validation -> Prospective observational pilot at AIIMS/VPCI.
-- Real-world integration with ABHA (Ayushman Bharat Health Account) and FHIR standards.
-- Team, Open-Source Commitment (MIT License), and Call to Action.
+### Slide 9: Honest Scientific & Clinical Limitations
+1. **Synthetic Cohort:** All patient records are synthetic; flare labels were assigned by our own drift simulation rules. High metrics reflect rule recovery on synthetic data rather than clinical efficacy.
+2. **No Real Patient Evidence:** No prospective or retrospective evidence demonstrating safety or efficacy on real patients.
+3. **Modelled Weather & AQI:** Data is from Open-Meteo CAMS and ERA5 reanalysis models, not physical hardware monitoring stations.
+4. **Illustrative Pollen Curve:** Mathematical seasonal model; not measured pollen trap counts.
+5. **Decision Support Only:** Designed for risk review; not an autonomous diagnostic or treatment tool.
+
+### Slide 10: Deliverables & Public Access
+- **Author:** Monalika Doda, SRM University Delhi-NCR, `<MY TEAM NAME>`, solo.
+- **Repository:** [https://github.com/MonalikaDoda/PulmoTwin](https://github.com/MonalikaDoda/PulmoTwin)
+- **PDF Deliverables:**
+  - `docs/PulmoTwin_Architecture_Diagram.pdf`
+  - `docs/PulmoTwin_Presentation_Deck.pdf`
+- **License:** MIT License (Copyright (c) 2026 Monalika Doda).
+- **Assistance Disclosure:** Built with AI coding assistance (Antigravity).
+- **Quick-Start:** Run backend on port 8000 (`uvicorn api.main:app`), frontend on port 3000 (`npm run dev`).

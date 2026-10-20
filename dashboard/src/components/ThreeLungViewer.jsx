@@ -261,13 +261,13 @@ export default function ThreeLungViewer({
     window.addEventListener('mousemove', onMouseMove)
     window.addEventListener('mouseup', onMouseUp)
 
-    // Animation Clock
-    const clock = new THREE.Clock()
+    // Animation Timer using performance.now() (avoids deprecated THREE.Clock warning)
+    const startTime = performance.now()
     let animationFrameId
 
     const animate = () => {
       animationFrameId = requestAnimationFrame(animate)
-      const elapsed = clock.getElapsedTime()
+      const elapsed = (performance.now() - startTime) * 0.001
 
       // 1. Breathing frequency scaled by patient's respiratory rate
       const currentRR = rrRef.current || 16

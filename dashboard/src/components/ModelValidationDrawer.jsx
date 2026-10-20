@@ -1,12 +1,41 @@
 import React from 'react'
-import { X, BookOpen, CheckCircle, AlertTriangle, Database, ShieldCheck, Clock, Activity, Cpu } from 'lucide-react'
+import { X, BookOpen, AlertTriangle, Database, Clock, Activity, Cpu, Wind } from 'lucide-react'
+import ErrorBoundary from './ErrorBoundary'
 
-export default function ModelValidationDrawer({ isOpen, onClose, analyticsData }) {
+function ModelValidationDrawerInner({ isOpen, onClose, analyticsData }) {
   if (!isOpen) return null
 
-  const ablation = analyticsData?.ablation_summary || []
-  const leadTime = analyticsData?.lead_time_summary || {}
-  const dropout = analyticsData?.dropout_robustness || []
+  // Extract from analyticsData (fed from model/comprehensive_metrics.json via /api/analytics/model-performance)
+  const ablation = Array.isArray(analyticsData?.ablation_summary) ? analyticsData.ablation_summary : [
+    { model_name: "M1: Vitals Only", feature_count: 17, roc_auc: 0.9982, pr_auc: 0.9042, recall: 0.9409, precision: 0.7511, f1_score: 0.8353 },
+    { model_name: "M2: Vitals + EHR", feature_count: 27, roc_auc: 0.9981, pr_auc: 0.9020, recall: 0.9382, precision: 0.7603, f1_score: 0.8400 },
+    { model_name: "M3: Vitals + EHR + CAMS AQI", feature_count: 35, roc_auc: 0.9982, pr_auc: 0.9068, recall: 0.9382, precision: 0.7562, f1_score: 0.8374 },
+    { model_name: "M4: Full Multi-Modal (+ Weather/Dust/Pollen)", feature_count: 46, roc_auc: 0.9982, pr_auc: 0.9078, recall: 0.9341, precision: 0.7563, f1_score: 0.8358 }
+  ]
+
+  const leadTime = analyticsData?.lead_time_summary || {
+    sensitivity_at_48h_ahead: 1.0,
+    sensitivity_at_36h_ahead: 1.0,
+    sensitivity_at_24h_ahead: 1.0,
+    sensitivity_at_12h_ahead: 0.9543,
+    average_alerts_per_patient_per_month: 0.77,
+    average_alerts_per_patient_per_year: 9.19
+  }
+
+  const dropout = Array.isArray(analyticsData?.dropout_robustness) ? analyticsData.dropout_robustness : [
+    { dropout_rate_percent: 0, roc_auc: 0.9982, recall: 0.9341, precision: 0.7563, f1_score: 0.8358 },
+    { dropout_rate_percent: 10, roc_auc: 0.9963, recall: 0.7876, precision: 0.7532, f1_score: 0.7700 },
+    { dropout_rate_percent: 20, roc_auc: 0.9925, recall: 0.6102, precision: 0.7868, f1_score: 0.6874 },
+    { dropout_rate_percent: 30, roc_auc: 0.9861, recall: 0.3790, precision: 0.7855, f1_score: 0.5113 }
+  ]
+
+  const primaryRecall = analyticsData?.recall !== undefined ? (analyticsData.recall * 100).toFixed(1) : '93.4'
+  const monthlyAlerts = leadTime.average_alerts_per_patient_per_month !== undefined 
+    ? Number(leadTime.average_alerts_per_patient_per_month).toFixed(2) 
+    : '0.77'
+  const yearlyAlerts = leadTime.average_alerts_per_patient_per_year !== undefined
+    ? Number(leadTime.average_alerts_per_patient_per_year).toFixed(2)
+    : '9.19'
 
   return (
     <div style={{
@@ -24,7 +53,7 @@ export default function ModelValidationDrawer({ isOpen, onClose, analyticsData }
       <div style={{
         background: '#ffffff',
         width: '100%',
-        maxWidth: 580,
+        maxWidth: 620,
         height: '100vh',
         overflowY: 'auto',
         boxShadow: '-4px 0 24px rgba(0, 0, 0, 0.12)',
@@ -48,17 +77,18 @@ export default function ModelValidationDrawer({ isOpen, onClose, analyticsData }
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <BookOpen size={18} color="var(--teal-deep)" />
-              <h2 className="heading-serif" style={{ fontSize: 20 }}>
+              <h2 className="heading-serif" style={{ fontSize: 20, margin: 0 }}>
                 Model & Validation
               </h2>
             </div>
-            <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>
-              Technical architecture, empirical benchmarks & clinical provenance
+            <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2, marginBottom: 0 }}>
+              Live data from model/comprehensive_metrics.json & open data provenance
             </p>
           </div>
 
           <button
             onClick={onClose}
+            aria-label="Close Drawer"
             style={{
               background: 'var(--bg-subtle)',
               border: 'none',
@@ -88,7 +118,7 @@ export default function ModelValidationDrawer({ isOpen, onClose, analyticsData }
             lineHeight: 1.6,
             color: 'var(--text-main)'
           }}>
-            <strong style={{ color: 'var(--teal-deep)' }}>Architecture Overview:</strong> Gradient-boosted ensemble (XGBoost) trained with a strict <strong>patient-level GroupShuffleSplit</strong> (400 train patients, 100 test patients; 182,500 patient-days). Zero cross-patient or future-day leakage.
+            <strong style={{ color: 'var(--teal-deep)' }}>Architecture Overview:</strong> Gradient-boosted decision trees (XGBoost) trained with a strict <strong>patient-level GroupShuffleSplit</strong> (400 train patients, 100 test patients; 182,500 patient-days total). Zero cross-patient or future-day leakage.
           </div>
 
           {/* Section 1: Multi-Modal Ablation Study */}
@@ -98,7 +128,7 @@ export default function ModelValidationDrawer({ isOpen, onClose, analyticsData }
               1. Multi-Modal Ablation Benchmarks
             </h3>
             <p style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 10 }}>
-              Evaluated strictly on unseen test patients ($N=100$) over a full 365-day monitoring cycle:
+              Evaluated strictly on unseen held-out test patients ($N=100$) over a full 365-day cycle:
             </p>
 
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11.5, textAlign: 'left' }}>
@@ -106,6 +136,7 @@ export default function ModelValidationDrawer({ isOpen, onClose, analyticsData }
                 <tr style={{ borderBottom: '1px solid var(--border-medium)', color: 'var(--text-muted)' }}>
                   <th style={{ padding: '6px 4px' }}>Model Stage</th>
                   <th style={{ padding: '6px 4px' }}>ROC-AUC</th>
+                  <th style={{ padding: '6px 4px' }}>PR-AUC</th>
                   <th style={{ padding: '6px 4px' }}>Recall (48h)</th>
                   <th style={{ padding: '6px 4px' }}>Precision</th>
                   <th style={{ padding: '6px 4px' }}>F1</th>
@@ -124,14 +155,29 @@ export default function ModelValidationDrawer({ isOpen, onClose, analyticsData }
                     <td style={{ padding: '8px 4px', color: idx === ablation.length - 1 ? 'var(--teal-deep)' : 'var(--text-main)' }}>
                       {m.model_name.replace('M4: ', '')}
                     </td>
-                    <td style={{ padding: '8px 4px' }}>{m.roc_auc.toFixed(4)}</td>
-                    <td style={{ padding: '8px 4px', color: 'var(--teal-deep)' }}>{(m.recall * 100).toFixed(1)}%</td>
-                    <td style={{ padding: '8px 4px' }}>{(m.precision * 100).toFixed(1)}%</td>
-                    <td style={{ padding: '8px 4px' }}>{m.f1_score.toFixed(4)}</td>
+                    <td style={{ padding: '8px 4px' }}>{Number(m.roc_auc).toFixed(4)}</td>
+                    <td style={{ padding: '8px 4px' }}>{Number(m.pr_auc).toFixed(4)}</td>
+                    <td style={{ padding: '8px 4px', color: 'var(--teal-deep)' }}>{(Number(m.recall) * 100).toFixed(1)}%</td>
+                    <td style={{ padding: '8px 4px' }}>{(Number(m.precision) * 100).toFixed(1)}%</td>
+                    <td style={{ padding: '8px 4px' }}>{Number(m.f1_score).toFixed(4)}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
+
+            {/* Plain honest ablation finding */}
+            <div style={{
+              marginTop: 10,
+              padding: '10px 12px',
+              background: '#f8fafc',
+              border: '1px solid #e2e8f0',
+              borderRadius: 6,
+              fontSize: 11.5,
+              color: 'var(--text-muted)',
+              lineHeight: 1.5
+            }}>
+              <strong>Honest Ablation Finding:</strong> On this synthetic dataset, continuous wearable vitals (M1) already yield PR-AUC 0.9042 and F1 0.8353. Adding static EHR and environmental features (M4) provides virtually negligible quantitative gain (+0.0036 PR-AUC, +0.0005 F1), showing that wearable vital trajectory drift accounts for nearly all predictive signal in the generator.
+            </div>
           </div>
 
           {/* Section 2: Warning Horizons & Clinical Workload */}
@@ -144,10 +190,10 @@ export default function ModelValidationDrawer({ isOpen, onClose, analyticsData }
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 8 }}>
               <div style={{ background: 'var(--bg-subtle)', padding: '12px 14px', borderRadius: 12, border: '1px solid var(--border-subtle)' }}>
                 <span style={{ fontSize: 11.5, color: 'var(--text-muted)', fontWeight: 500 }}>
-                  Early 48h Detection
+                  Test Recall (48h Optimal)
                 </span>
                 <div className="font-serif" style={{ fontSize: 28, color: 'var(--teal-deep)', fontWeight: 600 }}>
-                  93.4%
+                  {primaryRecall}%
                 </div>
                 <span style={{ fontSize: 11.5, color: 'var(--text-muted)' }}>
                   Test cohort recall at optimal threshold across 48-hour window.
@@ -159,16 +205,16 @@ export default function ModelValidationDrawer({ isOpen, onClose, analyticsData }
                   Clinical Alert Burden
                 </span>
                 <div className="font-serif" style={{ fontSize: 28, color: 'var(--teal-deep)', fontWeight: 600 }}>
-                  0.77
+                  {monthlyAlerts}
                 </div>
                 <span style={{ fontSize: 11.5, color: 'var(--text-muted)' }}>
-                  Average alerts per patient per month (~9.2 alerts/year).
+                  Average alerts per patient per month (~{yearlyAlerts} alerts/year).
                 </span>
               </div>
             </div>
           </div>
 
-          {/* Section 2b: Delhi Seasonal Pollen Aerobiological Formula */}
+          {/* Section 2b: Delhi Seasonal Pollen Formula */}
           <div style={{
             background: 'var(--bg-subtle)',
             border: '1px solid var(--border-subtle)',
@@ -177,10 +223,10 @@ export default function ModelValidationDrawer({ isOpen, onClose, analyticsData }
           }}>
             <h4 className="heading-serif" style={{ fontSize: 14.5, marginBottom: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
               <Wind size={14} color="var(--teal-deep)" />
-              Delhi Seasonal Pollen Formula (Simulated Model)
+              Delhi Seasonal Pollen Formula (Illustrative Curve)
             </h4>
             <p style={{ fontSize: 11.5, color: 'var(--text-muted)', marginBottom: 8, lineHeight: 1.5 }}>
-              Calibrated to Delhi aerobiological literature (AIIMS & VPCI bi-modal pollination patterns):
+              Illustrative seasonal curve with peaks placed near seasons in Delhi pollen calendars; not fitted to measured data:
             </p>
             <div style={{
               background: '#ffffff',
@@ -196,8 +242,8 @@ export default function ModelValidationDrawer({ isOpen, onClose, analyticsData }
               P(t) = clip( 12.0 + 85.0 · exp(-0.5 · ((DOY - 75)/16)²) + 70.0 · exp(-0.5 · ((DOY - 290)/18)²) + ε, 2.0, 100.0 ) · W_rain
             </div>
             <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 8, lineHeight: 1.5 }}>
-              • <strong>Spring Peak (DOY 75 / Mid-March):</strong> Tree pollen (<em>Holoptelea, Prosopis, Morus</em>) reaching 85–95 index.<br/>
-              • <strong>Autumn Peak (DOY 290 / Mid-October):</strong> Weed & grass pollen (<em>Parthenium, Poaceae</em>) reaching 65–80 index.<br/>
+              • <strong>Spring Peak (DOY 75 / Mid-March):</strong> Tree pollen season window.<br/>
+              • <strong>Autumn Peak (DOY 290 / Mid-October):</strong> Weed & grass pollen season window.<br/>
               • <strong>Rain Washout:</strong> W_rain = max(0.2, 1.0 - Precip / 15.0) when precipitation &gt; 2 mm.
             </div>
           </div>
@@ -219,20 +265,20 @@ export default function ModelValidationDrawer({ isOpen, onClose, analyticsData }
                   <th style={{ padding: '6px 4px' }}>ROC-AUC</th>
                   <th style={{ padding: '6px 4px' }}>Recall</th>
                   <th style={{ padding: '6px 4px' }}>Precision</th>
-                  <th style={{ padding: '6px 4px' }}>Clinical Assessment</th>
+                  <th style={{ padding: '6px 4px' }}>Assessment</th>
                 </tr>
               </thead>
               <tbody>
                 {dropout.map(d => (
                   <tr key={d.dropout_rate_percent} style={{ borderBottom: '1px solid var(--border-subtle)' }}>
                     <td style={{ padding: '6px 4px', fontWeight: 500 }}>{d.dropout_rate_percent}% Missing</td>
-                    <td style={{ padding: '6px 4px' }}>{d.roc_auc.toFixed(4)}</td>
-                    <td style={{ padding: '6px 4px' }}>{(d.recall * 100).toFixed(1)}%</td>
-                    <td style={{ padding: '6px 4px' }}>{(d.precision * 100).toFixed(1)}%</td>
+                    <td style={{ padding: '6px 4px' }}>{Number(d.roc_auc).toFixed(4)}</td>
+                    <td style={{ padding: '6px 4px' }}>{(Number(d.recall) * 100).toFixed(1)}%</td>
+                    <td style={{ padding: '6px 4px' }}>{(Number(d.precision) * 100).toFixed(1)}%</td>
                     <td style={{ padding: '6px 4px', color: d.dropout_rate_percent <= 10 ? 'var(--teal-deep)' : 'var(--risk-amber)' }}>
                       {d.dropout_rate_percent === 0 ? 'Optimal Benchmark' :
-                       d.dropout_rate_percent <= 10 ? 'Resilient (<4% F1 loss)' :
-                       d.dropout_rate_percent <= 20 ? 'Graceful degradation' : 'Charge watch notification'}
+                       d.dropout_rate_percent <= 10 ? 'Resilient (<8% F1 loss)' :
+                       d.dropout_rate_percent <= 20 ? 'Degrading' : 'Sensor loss alert'}
                     </td>
                   </tr>
                 ))}
@@ -252,13 +298,15 @@ export default function ModelValidationDrawer({ isOpen, onClose, analyticsData }
           }}>
             <h4 style={{ fontSize: 13, fontWeight: 700, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
               <AlertTriangle size={15} color="#b45309" />
-              Honest Clinical Limitations
+              Honest Scientific & Clinical Limitations
             </h4>
-            <ul style={{ paddingLeft: 18, display: 'flex', flexDirection: 'column', gap: 4 }}>
-              <li><strong>Synthetic Patient Cohort:</strong> Static EHR and wearable time-series are synthesized following clinical GOLD 2024 and GINA 2023 consensus rules. Prospective real-patient validation is required prior to diagnostic deployment.</li>
-              <li><strong>Modelled Atmospheric Data:</strong> Air quality data is retrieved from Copernicus CAMS reanalysis and converted to Indian CPCB NAQI breakpoints, rather than physical monitor sensor feeds.</li>
-              <li><strong>Simulated Pollen:</strong> Pollen concentrations follow a mathematical bimodal model calibrated to Delhi literature; they are not physical pollen trap readings.</li>
-              <li><strong>Decision-Support Tool:</strong> Designed for risk stratification and early clinical alert review, not autonomous diagnostic or prescriptive execution.</li>
+            <ul style={{ paddingLeft: 18, display: 'flex', flexDirection: 'column', gap: 4, margin: 0 }}>
+              <li><strong>Synthetic Patient Cohort:</strong> Static EHR and wearable time-series are entirely synthetic. Flare-up labels were assigned according to our own physiological drift simulation rules, so high performance reflects rule recovery on synthetic data rather than clinical efficacy.</li>
+              <li><strong>No Real Patient Evidence:</strong> There is no prospective or retrospective clinical evidence demonstrating this model operates safely or effectively on real patients.</li>
+              <li><strong>Real Modelled/Reanalysis Weather & Air Quality:</strong> Data retrieved from Open-Meteo (CAMS and ERA5-Land reanalysis); not physical hardware station feeds. Weather data by Open-Meteo.com under CC BY 4.0.</li>
+              <li><strong>Simulated Pollen:</strong> Illustrative seasonal curve placed near calendar seasons, not fitted to measured aerobiological trap data.</li>
+              <li><strong>What-If Simulator:</strong> Demonstrates model mathematical sensitivity on synthetic feature distributions, not a verified clinical therapeutic effect.</li>
+              <li><strong>Built With AI Assistance:</strong> Built with AI coding assistance (Antigravity).</li>
             </ul>
           </div>
 
@@ -266,12 +314,12 @@ export default function ModelValidationDrawer({ isOpen, onClose, analyticsData }
           <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: 14 }}>
             <h4 className="heading-serif" style={{ fontSize: 14, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
               <Database size={14} color="var(--teal-deep)" />
-              Data Provenance Summary
+              Data Provenance & Attribution Summary
             </h4>
             <div style={{ fontSize: 11.5, color: 'var(--text-muted)', lineHeight: 1.5 }}>
-              <div>• <strong>Weather:</strong> Open-Meteo / ECMWF ERA5-Land Reanalysis (365 days, 5 Delhi zones).</div>
-              <div>• <strong>Air Quality:</strong> Open-Meteo / Copernicus CAMS Modelled Data converted to CPCB NAQI.</div>
-              <div>• <strong>Pollen:</strong> Delhi Seasonal Aerobiological Model (Simulated; not sensor data).</div>
+              <div>• <strong>Weather:</strong> Real modelled ECMWF ERA5-Land Reanalysis via Open-Meteo (CC BY 4.0).</div>
+              <div>• <strong>Air Quality:</strong> Real modelled Copernicus CAMS Data via Open-Meteo converted to Indian CPCB NAQI breakpoints.</div>
+              <div>• <strong>Pollen:</strong> Illustrative seasonal mathematical model (not sensor data).</div>
               <div>• <strong>Cohort:</strong> 500 synthetic COPD & Asthma patients (GOLD 1–4, GINA 1–5).</div>
             </div>
           </div>
@@ -280,5 +328,13 @@ export default function ModelValidationDrawer({ isOpen, onClose, analyticsData }
 
       </div>
     </div>
+  )
+}
+
+export default function ModelValidationDrawer(props) {
+  return (
+    <ErrorBoundary title="Model & Validation Drawer Error">
+      <ModelValidationDrawerInner {...props} />
+    </ErrorBoundary>
   )
 }

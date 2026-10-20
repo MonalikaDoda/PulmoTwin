@@ -12,6 +12,7 @@ import PatientList from './components/PatientList'
 import DoctorActionsPanel from './components/DoctorActionsPanel'
 import AlertHistory from './components/AlertHistory'
 import ModelValidationDrawer from './components/ModelValidationDrawer'
+import ErrorBoundary from './components/ErrorBoundary'
 import { Sliders, ChevronDown } from 'lucide-react'
 
 const API_BASE = 'http://localhost:8000/api'
@@ -326,17 +327,19 @@ export default function App() {
 
           {/* HERO: 3D Respiratory Digital Twin with Dynamic Risk Tinting & Enlarge Risk Stat */}
           <div style={{ marginBottom: 38 }}>
-            <ThreeLungViewer
-              riskScore={activeRiskScore}
-              riskLevel={activeRiskLevel}
-              respiratoryRate={activeRespRate}
-              spo2={activeSpo2}
-              aqi={activeAqi}
-              patientName={patientProfile?.name || 'Patient'}
-              condition={patientProfile?.condition || 'COPD'}
-              simulationDay={currentDay}
-              simulationDate={activeDate}
-            />
+            <ErrorBoundary title="3D Respiratory Twin Viewer">
+              <ThreeLungViewer
+                riskScore={activeRiskScore}
+                riskLevel={activeRiskLevel}
+                respiratoryRate={activeRespRate}
+                spo2={activeSpo2}
+                aqi={activeAqi}
+                patientName={patientProfile?.name || 'Patient'}
+                condition={patientProfile?.condition || 'COPD'}
+                simulationDay={currentDay}
+                simulationDate={activeDate}
+              />
+            </ErrorBoundary>
           </div>
 
           {/* Under Hero: 5 Vital Tiles with Baseline Delta & 7-Day Sparkline */}
