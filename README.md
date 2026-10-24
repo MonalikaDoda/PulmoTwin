@@ -257,8 +257,7 @@ The What-If engine recalculates the model's predicted probability when users mod
 
 A video walkthrough of the prototype is provided here:
 
-> 🎬 **[Demo Video Walkthrough (Unlisted YouTube)](YOUR_YOUTUBE_LINK_HERE)**  
-> *(Replace `YOUR_YOUTUBE_LINK_HERE` with your unlisted YouTube demonstration video link).*
+> 🎬 **[Demo Video Walkthrough (Unlisted YouTube)](https://youtu.be/9H-7wfnuqpY)**  
 
 ---
 
