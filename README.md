@@ -15,20 +15,19 @@
 
 | # | Submission Requirement | Documentation Section |
 | :-: | :--- | :--- |
-| 1 | **Team Details** | [1. Team Information](#1-team-information) |
-| 2 | **College Affiliation** | [2. Institution & Affiliation](#2-institution--affiliation) |
-| 3 | **Project Title & Tagline** | [3. Project Title & Executive Summary](#3-project-title--executive-summary) |
-| 4 | **Problem Statement** | [4. Problem Statement & Clinical Context](#4-problem-statement--clinical-context) |
-| 5 | **Healthcare Use Case** | [5. Healthcare Use Case & Workflow](#5-healthcare-use-case--workflow) |
-| 6 | **Technical Stack & Architecture** | [6. Technical Stack & Architecture](#6-technical-stack--architecture) |
-| 7 | **AI / ML Model Details & Ablation** | [7. AI/ML Model Details & Validation](#7-aiml-model-details--validation) |
-| 8 | **Working Prototype Video Demo** | [8. Video Demonstration](#8-video-demonstration) |
-| 9 | **Open-Source License** | [9. Open-Source License (MIT)](#9-open-source-license) |
-| 10 | **System Architecture Deliverable** | [10. System Architecture Deliverable (PDF)](#10-system-architecture-deliverable) |
-| 11 | **Presentation Pitch Deck** | [11. Final Presentation Pitch Deck (PDF)](#11-final-presentation-pitch-deck) |
-| 12 | **Public Access & Run Instructions** | [12. Reproducibility & Quick-Start Guide](#12-reproducibility--quick-start-guide) |
-| 13 | **Scientific Limitations** | [13. Limitations & Disclaimers](#13-limitations--disclaimers) |
-| 14 | **Assets & Credits** | [14. Assets & Credits](#14-assets--credits) |
+| 1 | **Team Details & College Affiliation** | [1. Team Information](#1-team-information) |
+| 2 | **Project Title & Tagline** | [2. Project Title & Executive Summary](#2-project-title--executive-summary) |
+| 3 | **Problem Statement** | [3. Problem Statement & Clinical Context](#3-problem-statement--clinical-context) |
+| 4 | **Healthcare Use Case** | [4. Healthcare Use Case & Workflow](#4-healthcare-use-case--workflow) |
+| 5 | **Technical Stack & Architecture** | [5. Technical Stack & Architecture](#5-technical-stack--architecture) |
+| 6 | **AI / ML Model Details & Ablation** | [6. AI/ML Model Details & Validation](#6-aiml-model-details--validation) |
+| 7 | **Working Prototype Video Demo** | [7. Video Demonstration](#7-video-demonstration) |
+| 8 | **Open-Source License** | [8. Open-Source License (MIT)](#8-open-source-license) |
+| 9 | **System Architecture Deliverable** | [9. System Architecture Deliverable (PDF)](#9-system-architecture-deliverable) |
+| 10 | **Presentation Pitch Deck** | [10. Final Presentation Pitch Deck (PDF)](#10-final-presentation-pitch-deck) |
+| 11 | **Public Access & Run Instructions** | [11. Reproducibility & Quick-Start Guide](#11-reproducibility--quick-start-guide) |
+| 12 | **Scientific Limitations** | [12. Limitations & Disclaimers](#12-limitations--disclaimers) |
+| 13 | **Assets & Credits** | [13. Assets & Credits](#13-assets--credits) |
 
 ---
 
@@ -42,7 +41,7 @@
 
 ---
 
-## 3. Project Title & Executive Summary
+## 2. Project Title & Executive Summary
 
 ### **PulmoTwin: 48-Hour Outpatient Respiratory Digital Twin**
 *Continuous Early Warning Forecasting of Acute COPD & Asthma Flare-Ups through Wearable Biomarkers and Atmospheric Intelligence.*
@@ -60,7 +59,7 @@ The platform provides an editorial-grade clinical dashboard featuring an interac
 
 ---
 
-## 4. Problem Statement & Clinical Context
+## 3. Problem Statement & Clinical Context
 
 ### The Chronic Airway Crisis in Urban India
 Chronic respiratory diseases represent a major public health burden in India:
@@ -78,11 +77,11 @@ PulmoTwin explores whether continuous multi-modal data can detect these pre-flar
 
 ---
 
-## 5. Healthcare Use Case & Workflow
+## 4. Healthcare Use Case & Workflow
 
 ![Clinical Workflow](docs/PulmoTwin_Workflow.png)
 
-## 6. Technical Stack & Architecture
+## 5. Technical Stack & Architecture
 
 ### System Architecture Pipeline
 
@@ -140,11 +139,11 @@ flowchart TD
 
 ---
 
-## 7. AI/ML Model Details & Validation
+## 6. AI/ML Model Details & Validation
 
 *All metrics in this section are read directly from [`model/comprehensive_metrics.json`](model/comprehensive_metrics.json) and [`model/lead_time_analysis.json`](model/lead_time_analysis.json).*
 
-### 7.1 Data Sources & Provenance
+### 6.1 Data Sources & Provenance
 
 | Modality | Features Captured | Source & Provenance | Classification |
 | :--- | :--- | :--- | :--- |
@@ -156,7 +155,7 @@ flowchart TD
 
 > **Data Attribution Notice:** Weather and air quality data by [Open-Meteo.com](https://open-meteo.com/) under [Creative Commons Attribution 4.0 International (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/). Copernicus Atmosphere Monitoring Service information is used.
 
-### 7.2 Delhi Seasonal Pollen Formula
+### 6.2 Delhi Seasonal Pollen Formula
 The seasonal pollen index $P(t)$ is modeled as an illustrative seasonal curve with peaks placed near calendar seasons in Delhi pollen calendars:
 
 $$P(\text{DOY}, \text{Precip}) = \text{clip}\left( 12.0 + 85.0 \cdot \exp\left( -0.5 \left( \frac{\text{DOY} - 75}{16.0} \right)^2 \right) + 70.0 \cdot \exp\left( -0.5 \left( \frac{\text{DOY} - 290}{18.0} \right)^2 \right) + \epsilon,\; 2.0,\; 100.0 \right) \times W_{\text{rain}}$$
@@ -171,7 +170,7 @@ Where:
 
 ---
 
-### 7.3 Multi-Modal Ablation Study (Exact Real Values)
+### 6.3 Multi-Modal Ablation Study (Exact Real Values)
 
 Evaluated on an independent, held-out test cohort of **100 patients (36,500 patient-days)** with strict patient-level separation (zero data leakage):
 
@@ -188,7 +187,7 @@ Evaluated on an independent, held-out test cohort of **100 patients (36,500 pati
 
 ---
 
-### 7.4 Event-Level Advance Detection vs. Day-Level Recall
+### 6.4 Event-Level Advance Detection vs. Day-Level Recall
 
 From [`model/lead_time_analysis.json`](model/lead_time_analysis.json) across **372 test flare events** in the held-out cohort:
 
@@ -212,7 +211,7 @@ From [`model/lead_time_analysis.json`](model/lead_time_analysis.json) across **3
 
 ---
 
-### 7.5 Wearable Sensor Dropout Robustness Test (Exact Real Values)
+### 6.5 Wearable Sensor Dropout Robustness Test (Exact Real Values)
 
 From [`model/comprehensive_metrics.json`](model/comprehensive_metrics.json), simulating uncharged devices or non-wear:
 
@@ -225,16 +224,25 @@ From [`model/comprehensive_metrics.json`](model/comprehensive_metrics.json), sim
 
 ---
 
-### 7.6 Explainable AI & What-If Sensitivity Simulator
+### 6.6 Explainable AI & What-If Sensitivity Simulator
 
 #### SHAP Sequential Probability Attribution
 Using `shap.TreeExplainer`, local feature contributions in log-odds space are grouped into 9 clinical factor categories. Rather than proportional scaling (which is susceptible to cancellation instabilities when positive and negative SHAP values offset), attribution is calculated sequentially from the model baseline, ordered by factor magnitude ($|\Phi_k|$ descending):
 
-1. **Model Baseline**: Base log-odds $\text{base} = \text{explainer.expected\_value} = -0.56817$, yielding $\text{Model baseline} = \sigma(-0.56817) \times 100 = 36.2\%$.
-2. **Sequential Step**: Factors are ordered by absolute log-odds contribution $|\Phi_1| \ge |\Phi_2| \ge \dots \ge |\Phi_9|$. For factor $k$ with cumulative log-odds $\text{cum}_k = \sum_{i=1}^k \Phi_i$:
-   $$\text{Shift}_k = \left[\sigma(\text{base} + \text{cum}_k) - \sigma(\text{base} + \text{cum}_{k-1})\right] \times 100$$
-3. **Exact Reconciliation**: Because the telescoping sum $\sum_{k=1}^9 \text{Shift}_k$ equals $[\sigma(\text{margin}) - \sigma(\text{base})] \times 100$, the displayed risk exactly equals baseline plus the sum of factor shifts:
-   $$\text{Model Baseline (36.2\%)} + \sum_{k=1}^{9} \text{Factor Shift}_k \equiv \text{Displayed 48h Risk\%}$$
+1. **Model Baseline**: Base log-odds $\text{base} = -0.56817$ (from `explainer.expected_value`), producing the cohort reference baseline:
+$$
+\text{Model Baseline} = \sigma(-0.56817) \times 100 = 36.2\%
+$$
+
+2. **Sequential Step**: Factors are ordered by absolute log-odds contribution ($|\Phi_1| \ge |\Phi_2| \ge \dots \ge |\Phi_9|$). For factor $k$, the marginal risk shift is computed from the cumulative sum of SHAP values:
+$$
+\text{Shift}_k = \left[\sigma\left(\text{base} + \sum_{i=1}^k \Phi_i\right) - \sigma\left(\text{base} + \sum_{i=1}^{k-1} \Phi_i\right)\right] \times 100
+$$
+
+3. **Exact Reconciliation**: Because the sum telescopes to the model margin, the final risk forecast equals the model baseline plus the sum of all 9 factor shifts:
+$$
+\text{Model Baseline } (36.2\%) + \sum_{k=1}^{9} \text{Shift}_k = \text{Forecasted 48h Risk\%}
+$$
 
 #### What-If Sensitivity Simulator
 The What-If engine recalculates the model's predicted probability when users modify environmental or adherence inputs:
@@ -245,7 +253,7 @@ The What-If engine recalculates the model's predicted probability when users mod
 
 ---
 
-## 8. Video Demonstration
+## 7. Video Demonstration
 
 A video walkthrough of the prototype is provided here:
 
@@ -254,7 +262,7 @@ A video walkthrough of the prototype is provided here:
 
 ---
 
-## 9. Open-Source License
+## 8. Open-Source License
 
 PulmoTwin is released under the **MIT License**.  
 See the full license text in [LICENSE](LICENSE).  
@@ -262,7 +270,7 @@ Copyright (c) 2026 Monalika Doda.
 
 ---
 
-## 10. System Architecture Deliverable
+## 9. System Architecture Deliverable
 
 The vector system architecture document is available in the `docs/` directory:
 - 📄 **Architecture Diagram (PDF)**: [`docs/PulmoTwin_Architecture_Diagram.pdf`](docs/PulmoTwin_Architecture_Diagram.pdf)
@@ -270,7 +278,7 @@ The vector system architecture document is available in the `docs/` directory:
 
 ---
 
-## 11. Final Presentation Pitch Deck
+## 10. Final Presentation Pitch Deck
 
 The multi-slide presentation deck is available in the `docs/` directory:
 - 📊 **Presentation Deck (PDF)**: [`docs/PulmoTwin_Presentation_Deck.pdf`](docs/PulmoTwin_Presentation_Deck.pdf)
@@ -278,7 +286,7 @@ The multi-slide presentation deck is available in the `docs/` directory:
 
 ---
 
-## 12. Reproducibility & Quick-Start Guide
+## 11. Reproducibility & Quick-Start Guide
 
 ### Prerequisites
 - Python 3.10, 3.11, or 3.12
@@ -330,7 +338,7 @@ npm run dev
 
 ---
 
-## 13. Limitations & Disclaimers
+## 12. Limitations & Disclaimers
 
 1. **Synthetic Patient Data**: All patient demographics, clinical stages, and wearable time-series are synthetic. Uses GOLD/GINA stage categories; proportions are our assumptions. No real patient health information (PHI) was used.
 2. **Synthetic Flare Frequency**: The synthetic cohort averages **~3.64 flare-up events per patient per year** (1,821 total acute flare events across 500 patients over 365 days; 372 flares across 100 test patients). In real-world outpatient populations, annual flare rates are typically lower (e.g. 0.5–2.0 flares/year for moderate disease), meaning flare frequency is overrepresented in this dataset to ensure sufficient training examples.
@@ -344,7 +352,7 @@ npm run dev
 
 ---
 
-## 14. Assets & Credits
+## 13. Assets & Credits
 
 - **3D Lung Model (`dashboard/public/lungs.glb`)**:
   - **Title**: "Lungs"
